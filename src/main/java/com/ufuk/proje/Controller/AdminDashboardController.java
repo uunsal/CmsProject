@@ -48,10 +48,11 @@ public class AdminDashboardController {
             page.setUrl("/"+url.toLowerCase());
         }
         page.setContents("");
-        System.out.println(page.toString());
+
         Page page_control = pageService.findByUrl(page.getUrl()); // sayfa yoksa sayfayı oluşturur.
+        System.out.println(page_control);
         if(page.getPageType()==null) page.setPageType("sample"); // gelişmiş seçenekte sayfa türü belirtilmemişse sample dır
-        if(page.getPageType()!="sample"){
+        if(!page.getPageType().equals("sample")){
             List<Page> page_type_control = pageService.findByPageType(page.getPageType());
             if(page_type_control.size()>0){ // var olan sayfa türlerinden zaten varsa kullanıcıya hata döndürmesi için yazıldı.
                 return ResponseEntity.ok(null);

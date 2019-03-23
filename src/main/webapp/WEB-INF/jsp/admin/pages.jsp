@@ -93,8 +93,8 @@
                     data: created_page
                 }).then(function successCallback(response) {
                     //$scope.person=response.data;
-                    //console.log(response.data.title)
-                    if(response.data.title!=null){
+                    console.log(response.data.title)
+                    if(response.data.title!=null ||response.data.title!=undefined){
                         $scope.page_select(response.data.id);
                         $scope.getAllpages(); // yan sayfalar menüsü güncellenir
                         console.log("istekatildi");

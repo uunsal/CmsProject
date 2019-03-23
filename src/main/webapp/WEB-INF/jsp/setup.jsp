@@ -38,7 +38,7 @@
             $scope.formu_gonder = function () {
                 $http({
                     method: 'POST',
-                    url: 'user/initalizez',
+                    url: 'user/initalize',
                     data: {user:{username:$scope.kullanici_adi,
                             password:$scope.sifre,email:$scope.email,unvan:$scope.unvan,firstName:$scope.first_name,lastName:$scope.last_name},isAdmin:$scope.adminknt,url:$scope.url}
                 }).then(function successCallback(response) {

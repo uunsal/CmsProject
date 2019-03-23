@@ -18,5 +18,6 @@ public interface PageService {
     public Theme getCurrentTheme();
     public void deletePage(Page page);
     List<Page> findByPageType(String pageType);
+    public void initalizeHomePage(Page page);
 
 }

@@ -54,6 +54,11 @@ public class PageServiceImpl implements PageService {
         return pageRepository.findByPageType(pageType);
     }
 
+    @Override
+    public void initalizeHomePage(Page page) { //initalize işleminde anasayfayı kaydeder.
+        pageRepository.save(page);
+    }
+
 
     @Override
     public Page findByTitle(String title) {

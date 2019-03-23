@@ -27,7 +27,7 @@ public class WebController {
         ModelAndView mav = new ModelAndView();
         if(ProjeApplication.readInıtalize()){
             mav.addObject("pages",pageService.findAllPageIsNotDraft()); // tüm sayfaları menü için eklenir. // taslakların dışında
-            mav.addObject("page",pageService.findByTitle("ana sayfa"));
+            mav.addObject("page",pageService.findByTitle("ana sayfa")); //findbypagetype a göre yapılabilir. ****!!!
             mav.setViewName("/themes/"+currentTheme.getName()+"/sample");
         }else {
             mav.setViewName("setup");

@@ -1,8 +1,11 @@
 package com.ufuk.proje.Controller;
 
+import com.ufuk.proje.Model.Page;
+import com.ufuk.proje.Model.Theme;
 import com.ufuk.proje.Model.authorities;
 import com.ufuk.proje.Model.initalize.initalize_model;
 import com.ufuk.proje.ProjeApplication;
+import com.ufuk.proje.Service.PageService;
 import com.ufuk.proje.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -16,6 +19,8 @@ import java.io.*;
 @RestController
 @RequestMapping("/user")
 public class UserController {
+    @Autowired
+    private PageService pageService;
     @Autowired
     private UserService userService;
     @PostMapping("initalize")
@@ -36,7 +41,18 @@ public class UserController {
         }else{
             authorities.setAuthority("ROLE_EDITOR");
         }
-
+        Page page = new Page();
+        page.setContents("<p>Web sayfanız hazırlandı!</p>");
+        page.setUrl("/");
+        page.setDraft(false);
+        page.setPageType("home");
+        page.setTitle("ana sayfa");
+        Theme theme = new Theme();
+        theme.setActive(true);
+        theme.setName("Default");
+        theme.setScreenShout("");
+        userService.uploadTheme(theme);
+        pageService.initalizeHomePage(page);
         System.out.println(initalize_model.toString());
         System.out.println(initalize_model.getUser().getPassword());
         userService.saveUser(initalize_model.getUser());
