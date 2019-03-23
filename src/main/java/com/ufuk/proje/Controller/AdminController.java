@@ -1,6 +1,5 @@
 package com.ufuk.proje.Controller;
 
-import com.sun.org.apache.xpath.internal.operations.Mod;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
