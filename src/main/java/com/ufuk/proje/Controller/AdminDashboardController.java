@@ -7,6 +7,7 @@ import com.ufuk.proje.Service.PageService;
 import com.ufuk.proje.Service.UserService;
 import org.apache.catalina.core.ApplicationContext;
 import org.apache.commons.io.FileUtils;
+import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -106,5 +107,15 @@ public class AdminDashboardController {
     public ResponseEntity<String> uploadTheme(Theme theme){
         userService.uploadTheme(theme);
         return ResponseEntity.ok("Dosya Yüklendi");
+    }
+
+    @PostMapping("updateDraftPage")
+    public ResponseEntity<String> updateDraftPage(@RequestBody Page page){// taslak sayfayı güncelleyen fonksiyon
+        return ResponseEntity.ok(pageService.updateDraftPage(page));
+    }
+
+    @PostMapping("updatePageAdvanced")
+    public ResponseEntity<Page> updatePageAdvanced(@RequestBody Page page){//sayfayı gelişmiş olarak güncelleyen fonksiyon
+        return ResponseEntity.ok(pageService.updatePageAdvanced(page));
     }
 }

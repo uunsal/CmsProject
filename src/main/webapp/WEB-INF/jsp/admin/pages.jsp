@@ -39,6 +39,8 @@
                     url: 'dashboard/initPages'
                 }).then(function successCallback(response) {
                     $scope.getContextPath();
+                    $scope.input_title = false;
+                    $scope.input_url = false;
                     $scope.alertShow=false;
                     $scope.page_type = "0";
                     $scope.gelismis_secenek=false;
@@ -138,7 +140,6 @@
                 })
             }
             $scope.getAllpages = function(){ // tüm sayfaları getiren fonksiyon
-
                 $http({//get all pages
                     method: 'GET',
                     url: 'dashboard/initPages'
@@ -167,6 +168,14 @@
                     data: {id:data}
                 }).then(function successCallback(response) {
                     $scope.page_selected_value=response.data;
+                    console.log($scope.page_selected_value.draft);
+                    if($scope.page_selected_value.draft==false){//seçilen sayfa taslak değilse taslaklara kaydet butonu pasif yapılır
+                        console.log("evet")
+                        $scope.taslakbutton = false;
+                    }
+                    else{
+                        $scope.taslakbutton = true;
+                    }
                     $scope.global_secilen_page=$scope.page_selected_value.id;
                     CKEDITOR.instances.editor1.setData($scope.page_selected_value.contents+"\n");
                     $scope.goster_url=$scope.page_selected_value.url;
@@ -202,6 +211,7 @@
                     data: {contents:$scope.page_data,id:$scope.global_secilen_page}
                 }).then(function successCallback(response) {
                     //$scope.person=response.data;
+                    $scope.getAllpages();
                     $scope.alertFunct(true,"success","Sayfa kaydedildi!");
                 }, function errorCallback(response) {
                     // called asynchronously if an error occurs
@@ -210,8 +220,25 @@
                 console.log("deneme"+$scope.page_data);
                 //alert("deneme");
             };
+            $scope.updateDraftPage = function(){
+                $scope.page_data = CKEDITOR.instances.editor1.getData();
+                console.log($scope.page_data)
+                $http({
+                    method: 'POST',
+                    url: 'dashboard/updateDraftPage',
+                    data: {contents:$scope.page_data,id:$scope.global_secilen_page}
+                }).then(function successCallback(response) {
+                    //$scope.person=response.data;
+                    $scope.alertFunct(true,"success","Sayfa kaydedildi!");
+                }, function errorCallback(response) {
+                    // called asynchronously if an error occurs
+                    // or server returns response with an error status.
+                })
+                console.log("deneme"+$scope.page_data);
+            }
             $scope.page_view = function(){//sayfayı görüntüle fonksiyonu
                 console.log($scope.goster_url);
+                $scope.select_sample=true;
                 if ($scope.goster_url=="/"){
                     $scope.redirec=$scope.contextPath+$scope.goster_url;
                 }
@@ -219,6 +246,58 @@
                     $scope.redirec=$scope.contextPath+"/pages"+$scope.goster_url;
                 }
                 window.open($scope.redirec);
+            }
+            $scope.page_info = function(){ // sayfa bilgilerini döndürür.
+                $scope.select_Sample=true;
+                $http({
+                    method: 'POST',
+                    url: 'dashboard/getPage',
+                    data: {id:$scope.global_secilen_page}
+                }).then(function successCallback(response) {
+                    $scope.sayfa_duzenleme = response.data;
+
+                }, function errorCallback(response) {
+                    // called asynchronously if an error occurs
+                    // or server returns response with an error status.
+                })
+            }
+            $scope.page_update_advenced = function () { // gelişmiş sayfa güncellemesi
+                var pagetype="";
+                if($scope.page_type_advanced==0){
+                    pagetype="blog";
+                }
+                if($scope.page_type_advanced==1){
+                    pagetype="home";
+                }
+                if($scope.page_type_advanced==2){
+                    pagetype="sample";
+                }
+                var page = {id:$scope.global_secilen_page,title:$scope.adv_title,url:$scope.adv_url,pageType:pagetype};
+                console.log(page);
+                $http({
+                    method: 'POST',
+                    url: 'dashboard/updatePageAdvanced',
+                    data:page
+                }).then(function successCallback(response) {
+                    $scope.init();
+                }, function errorCallback(response) {
+                    // called asynchronously if an error occurs
+                    // or server returns response with an error status.
+                })
+            }
+            $scope.checkAll = function (checked) {
+                if($scope.check1){
+                    $scope.input_title = $scope.check1;
+                }else if($scope.check1==false){
+                    $scope.input_title = $scope.check1;
+                }
+                if($scope.check2){
+                    $scope.input_url = $scope.check2;
+                }else if ($scope.check2==false){
+                    $scope.input_url = $scope.check2;
+                }
+
+
             }
         })
 
@@ -261,7 +340,7 @@
                 <div class="btn-toolbar mb-2 mb-md-0">
                     <div class="btn-group mr-2">
                         <button type="button"  data-toggle="modal" data-target="#exampleModal" class="btn btn-sm btn-outline-danger">Sayfayı Sil</button>
-                        <button type="button" class="btn btn-sm btn-outline-secondary">Sayfayı Düzenle</button>
+                        <button type="button" data-toggle="modal" ng-click="page_info()" data-target="#exampleModal2" class="btn btn-sm btn-outline-secondary">Sayfayı Düzenle</button>
                         <button type="button" ng-click="page_view()" class="btn btn-sm btn-outline-secondary">Sayfayı Görüntüle</button>
                     </div>
                     <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle">
@@ -284,11 +363,59 @@
                         </div>
                         <div class="modal-body">
                             Sayfa içeriklerini silmek üzeresiniz onaylıyormusunuz?
-                            {{delete_message}}
+                            <%--{{delete_message}}--%>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Kapat</button>
                             <button type="button" class="btn btn-primary"  ng-click="page_delete()" data-dismiss="modal">Sil</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Modal Edit Page -->
+            <div class="modal fade" id="exampleModal2" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel2">Sayfa Düzenleme</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <b>Sayfa Adı</b>
+                            <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                    <div class="input-group-text">
+                                        <input type="checkbox" ng-model="check1" ng-change="checkAll(check1)" aria-label="Checkbox for following text input" placeholder="">
+                                    </div>
+                                </div>
+                                <input type="text" ng-disabled="input_title==false" ng-model="adv_title" class="form-control capitalize" aria-label="Text input with checkbox" placeholder="{{sayfa_duzenleme.title}}">
+                            </div>
+                            <b>Sayfa Url</b>
+                            <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                    <div class="input-group-text">
+                                        <input type="checkbox" ng-model="check2" ng-change="checkAll(check2)" aria-label="Checkbox for following text input" placeholder="">
+                                    </div>
+                                </div>
+                                <input type="text" class="form-control" ng-disabled="input_url==false" ng-model = "adv_url" aria-label="Text input with checkbox" placeholder="{{sayfa_duzenleme.url}}">
+                            </div>
+                            <b>Sayfa Türü</b>
+                            <div class="input-group mb-3">
+                                <select class="form-control" ng-model="page_type_advanced" id="exampleFormControlSelect1">
+                                    <option disabled selected value> -- sayfa türünü seçin -- </option>
+
+                                    <option value="0" ng-selected = "select_Sample==true" selected>Boş Sayfa</option>
+                                    <option value="1">Blog</option>
+                                    <option value="2">Ana Sayfa</option>
+
+                                </select>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Kapat</button>
+                            <button type="button" class="btn btn-primary"  ng-click="page_update_advenced()" data-dismiss="modal">Kaydet</button>
                         </div>
                     </div>
                 </div>
@@ -358,7 +485,7 @@
 
                             </script>
                             <p><input class="btn btn-primary" style="margin-top: 15px;margin-right:17px;" type="submit" value="Kaydet">
-                                <button type="button" style="margin-top: 15px;" class="btn btn-success">Taslaklara Kaydet</button></p>
+                                <button type="button" ng-disabled = "taslakbutton==false" ng-click="updateDraftPage()" style="margin-top: 15px;" class="btn btn-success">Taslaklara Kaydet</button></p>
 
 
                         </form>

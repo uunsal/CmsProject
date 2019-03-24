@@ -19,5 +19,6 @@ public interface PageService {
     public void deletePage(Page page);
     List<Page> findByPageType(String pageType);
     public void initalizeHomePage(Page page);
-
+    public String updateDraftPage(Page page);
+    public Page updatePageAdvanced(Page page);
 }
