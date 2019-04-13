@@ -21,4 +21,5 @@ public interface PageService {
     public void initalizeHomePage(Page page);
     public String updateDraftPage(Page page);
     public Page updatePageAdvanced(Page page);
+
 }

@@ -39,6 +39,7 @@
                     url: 'dashboard/initPages'
                 }).then(function successCallback(response) {
                     $scope.getContextPath();
+                    $scope.taslakbutton = false;
                     $scope.input_title = false;
                     $scope.input_url = false;
                     $scope.alertShow=false;
@@ -479,8 +480,9 @@
                                 // Replace the <textarea id="editor1"> with a CKEditor
                                 // instance, using default configuration.
                                 CKEDITOR.replace('editor1', {
-                                    height: 500
-
+                                    height: 500,
+                                    filebrowserBrowseUrl: '#modal',
+                                    filebrowserUploadUrl: '/uploader/upload.php'
                                 });
 
                             </script>
