@@ -2,12 +2,15 @@ package com.ufuk.proje.Service;
 
 import com.ufuk.proje.Model.Page;
 import com.ufuk.proje.Model.Theme;
-import com.ufuk.proje.Model.draftPage;
+import com.ufuk.proje.Model.image;
 import com.ufuk.proje.Repository.PageRepository;
 import com.ufuk.proje.Repository.ThemeRepository;
+import com.ufuk.proje.Repository.imageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,11 +18,12 @@ import java.util.Optional;
 public class PageServiceImpl implements PageService {
     private PageRepository pageRepository;
     private ThemeRepository themeRepository;
-
+    private imageRepository ımageRepository;
     @Autowired
-    public PageServiceImpl(PageRepository pageRepository, ThemeRepository themeRepository) {
+    public PageServiceImpl(PageRepository pageRepository, ThemeRepository themeRepository, imageRepository ımageRepository) {
         this.pageRepository = pageRepository;
         this.themeRepository = themeRepository;
+        this.ımageRepository = ımageRepository;
     }
 
     @Override
@@ -40,6 +44,17 @@ public class PageServiceImpl implements PageService {
 
     @Override
     public Page createPage(Page page) {
+        List<Page> allPage=pageRepository.findByIsDraft(Boolean.FALSE);
+        List sortNumber = new ArrayList();
+        for (Page p :allPage){
+            sortNumber.add(p.getSortNumber());
+        }
+        if(allPage.size()==0){
+            page.setSortNumber(0);
+        }else {
+            int numbers= (int) Collections.max(sortNumber);
+            page.setSortNumber(numbers+1);
+        }
         page.setContents("");
         pageRepository.save(page);
         return page;
@@ -59,6 +74,7 @@ public class PageServiceImpl implements PageService {
 
     @Override
     public void initalizeHomePage(Page page) { //initalize işleminde anasayfayı kaydeder.
+        page.setSortNumber(0);
         pageRepository.save(page);
     }
 
@@ -97,6 +113,26 @@ public class PageServiceImpl implements PageService {
             return temp_page.get();
         }
         return null;
+    }
+
+    @Override
+    public List<Page> getNotDraftPage() {
+        return pageRepository.findByIsDraft(false);
+    }
+
+    @Override
+    public void updateImage(image ımage) {
+        ımageRepository.save(ımage);
+    }
+
+    @Override
+    public List<image> findAllImage() {
+        return ımageRepository.findAll();
+    }
+
+    @Override
+    public void savePage(Page page) {
+        pageRepository.save(page);
     }
 
 

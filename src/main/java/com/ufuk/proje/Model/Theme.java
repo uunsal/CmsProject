@@ -1,9 +1,6 @@
 package com.ufuk.proje.Model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 public class Theme {
@@ -11,8 +8,18 @@ public class Theme {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int Id;
     private String name;
+    @Column(name = "screenshouts", length = 1000000)
     private String ScreenShout;
     private Boolean isActive;
+    private String description;
+
+    public int getId() {
+        return Id;
+    }
+
+    public void setId(int id) {
+        Id = id;
+    }
 
     public Boolean getActive() {
         return isActive;
@@ -36,5 +43,13 @@ public class Theme {
 
     public void setScreenShout(String screenShout) {
         ScreenShout = screenShout;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

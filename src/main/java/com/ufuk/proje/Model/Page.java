@@ -11,12 +11,13 @@ public class Page {
     private int ıd;
     private String title;
     private String url;
-    @Column(length = 1000000)
+    @Column(length = 10000000)
     private String contents;
     private String pageType; // home|blog|sample types
     @JsonProperty("draft")
     private Boolean isDraft; // taslak sayfa kontrolü için kullanıldı
-
+    @Column(name = "sort_numbers")
+    private int sortNumber; // sayfanın sıra numarası
     public int getId() {
         return ıd;
     }
@@ -63,6 +64,14 @@ public class Page {
 
     public void setDraft(Boolean draft) {
         isDraft = draft;
+    }
+
+    public int getSortNumber() {
+        return sortNumber;
+    }
+
+    public void setSortNumber(int sortNumber) {
+        this.sortNumber = sortNumber;
     }
 
     @Override

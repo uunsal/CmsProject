@@ -23,9 +23,15 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">
+                <a class="nav-link" href="${pageContext.request.contextPath}/admin/design">
                     <span data-feather="eye"></span>
                     Tasarım
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="${pageContext.request.contextPath}/admin/images">
+                    <span data-feather="image"></span>
+                    Resim işlemleri
                 </a>
             </li>
             <li class="nav-item">

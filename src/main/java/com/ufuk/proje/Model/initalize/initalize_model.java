@@ -2,10 +2,7 @@ package com.ufuk.proje.Model.initalize;
 
 import com.ufuk.proje.Model.User;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Entity
 @Table(name = "Settings")
@@ -17,6 +14,26 @@ public class initalize_model {
     private String theme = "Default";
     @OneToOne
     private User user;
+    @Column(length = 1000000)
+    private String profilePhoto;
+    @Column(length = 1000000)
+    private String customCss;
+
+    public String getProfilePhoto() {
+        return profilePhoto;
+    }
+
+    public void setProfilePhoto(String profilePhoto) {
+        this.profilePhoto = profilePhoto;
+    }
+
+    public String getCustomCss() {
+        return customCss;
+    }
+
+    public void setCustomCss(String customCss) {
+        this.customCss = customCss;
+    }
 
     public String getId() {
         return Id;

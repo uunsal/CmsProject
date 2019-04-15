@@ -3,7 +3,10 @@ package com.ufuk.proje.Controller;
 import com.ufuk.proje.Model.Context;
 import com.ufuk.proje.Model.Page;
 import com.ufuk.proje.Model.Theme;
+import com.ufuk.proje.Model.image;
+import com.ufuk.proje.Model.initalize.initalize_model;
 import com.ufuk.proje.Service.PageService;
+import com.ufuk.proje.Service.ThemeService;
 import com.ufuk.proje.Service.UserService;
 import org.apache.catalina.core.ApplicationContext;
 import org.apache.commons.io.FileUtils;
@@ -16,8 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
 import java.text.Normalizer;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("admin/dashboard")
@@ -27,6 +29,9 @@ public class AdminDashboardController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private ThemeService themeService;
 
     @PostMapping("createPage")
     public ResponseEntity<Page> createPage(@RequestBody Page page){
@@ -118,4 +123,63 @@ public class AdminDashboardController {
     public ResponseEntity<Page> updatePageAdvanced(@RequestBody Page page){//sayfayı gelişmiş olarak güncelleyen fonksiyon
         return ResponseEntity.ok(pageService.updatePageAdvanced(page));
     }
+
+    @GetMapping("allTheme")
+    public ResponseEntity<List<Theme>> getAllTheme(){
+        List<Theme> allTheme = themeService.findAllTheme();
+        return ResponseEntity.ok(allTheme);
+    }
+
+    @GetMapping("getNotDraftPage")
+    public ResponseEntity<List<Page>> getNotDraftPage(){
+        return ResponseEntity.ok(pageService.getNotDraftPage());
+    }
+
+    @PostMapping("uploadPhoto")
+    public void uploadPhoto(@RequestBody image ımage){
+        Date date = new Date();
+        ımage.setLoadDate(date.toString());
+        pageService.updateImage(ımage);
+
+    }
+
+    @GetMapping("findAllImage")
+    public ResponseEntity<List<image>> findAllImage(){
+        return ResponseEntity.ok(pageService.findAllImage());
+    }
+
+    @PostMapping("changeTheme")
+    public void changeTheme(@RequestBody Theme theme){
+        System.out.println(theme.getId());
+        themeService.changeTheme(theme);
+    }
+
+    @PostMapping("changeMenuSort")
+    public void changeMenuSort(@RequestBody List<Page> pages){
+        int sayac=0;
+        for (Page p: pages){
+            Optional<Page> page  = pageService.findById(p.getId());
+            if(page.isPresent()){
+                page.get().setSortNumber(sayac);
+                System.out.println(page.get().getTitle()+" "+page.get().getSortNumber());
+                pageService.savePage(page.get());
+                sayac++;
+            }
+        }
+    }
+
+    @PostMapping("setCustomCss")
+    public void updateCustomCss(@RequestBody String customCss){
+        System.out.println("custo"+customCss);
+        if(customCss.length()==0 | customCss.equals(null)){
+            customCss = "";
+        }
+        themeService.addCustomCss(customCss);
+    }
+
+    @GetMapping("getCustomCss")
+    public ResponseEntity<initalize_model> getCustomCss(){
+        return ResponseEntity.ok(userService.getSettings());
+    }
+
 }

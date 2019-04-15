@@ -51,6 +51,7 @@ public class UserController {
         theme.setActive(true);
         theme.setName("Default");
         theme.setScreenShout("");
+        theme.setDescription("web sayfanızı ilk oluşturduğunuzda seçili olarak gelen koyu ağırlıklı tema.");
         userService.uploadTheme(theme);
         pageService.initalizeHomePage(page);
         System.out.println(initalize_model.toString());

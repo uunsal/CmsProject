@@ -65,4 +65,18 @@ public class AdminController {
         return mav;
     }
 
+    @RequestMapping(value = {"design"})
+    public ModelAndView admin_design(){ // tasarım sayfası döndürülür
+        ModelAndView mav = new ModelAndView();
+        mav.setViewName("admin/design");
+        return mav;
+    }
+
+    @RequestMapping(value = {"images"})
+    public ModelAndView admin_images(){
+        ModelAndView mav = new ModelAndView();
+        mav.setViewName("admin/images");
+        return mav;
+    }
+
 }

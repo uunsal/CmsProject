@@ -29,11 +29,14 @@
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.7/angular.min.js"></script>
 
     <script>
+        var globalimage = "";
         var app = angular.module('myApp', []);
         app.controller('myAppcntrl', function ($scope, $http, $log,$location,$timeout,$window) {
             $scope.global_secilen_page=0;
             $scope.globa_home_page=-1;
             $scope.init = function(){
+                $scope.prgrss=false;
+                $scope.upcom=false;
                 $http({//page information
                     method: 'GET',
                     url: 'dashboard/initPages'
@@ -300,8 +303,87 @@
 
 
             }
-        })
 
+            $scope.uploadimage = function () {
+                $scope.prgrss=true;
+                //console.log("yuklenen",globalimage);
+                $http({
+                    method: 'POST',
+                    url: 'dashboard/uploadPhoto',
+                    data:{imageBase64:globalimage}
+                }).then(function successCallback(response) {
+                }, function errorCallback(response) {
+                    // called asynchronously if an error occurs
+                    // or server returns response with an error status.
+                })
+                $timeout(function() {
+                    for (var i = 0 ;i<101;i++){
+                        $scope.progressValue = i+'%';
+
+                    }
+                    $scope.yuklenenimg=globalimage;
+                    $scope.upcom=true;
+                }, 600);
+
+
+
+            }
+
+        })
+        function encodeImageFileAsURL(element) {
+            var file = element.files[0];
+            var reader = new FileReader();
+            reader.onloadend = function() {
+                //console.log('RESULT', reader.result)
+               globalimage = reader.result;
+
+            }
+            reader.readAsDataURL(file);
+        }
+        function readURL(input) {
+            if (input.files && input.files[0]) {
+
+                var reader = new FileReader();
+
+                reader.onload = function(e) {
+                    $('.image-upload-wrap').hide();
+
+                    $('.file-upload-image').attr('src', e.target.result);
+                    $('.file-upload-content').show();
+
+                    $('.image-title').html(input.files[0].name);
+                };
+
+                reader.readAsDataURL(input.files[0]);
+               encodeImageFileAsURL(input)
+
+            } else {
+                removeUpload();
+            }
+        }
+
+        function removeUpload() {
+            $('.file-upload-input').replaceWith($('.file-upload-input').clone());
+            $('.file-upload-content').hide();
+            $('.image-upload-wrap').show();
+        }
+        $('.image-upload-wrap').bind('dragover', function () {
+            $('.image-upload-wrap').addClass('image-dropping');
+        });
+        $('.image-upload-wrap').bind('dragleave', function () {
+            $('.image-upload-wrap').removeClass('image-dropping');
+        });
+
+        function myFunction() {
+            var copyText = document.getElementById("myInput");
+            copyText.select();
+
+            copied = document.execCommand('copy');
+            $timeout(function() {
+                $scope.myinpuy=false;
+            }, 50);
+
+        }
     </script>
     <style>
         .bd-placeholder-img {
@@ -321,7 +403,115 @@
         .capitalize {
             text-transform: capitalize;
         }
+        .file-upload {
+            background-color: #ffffff;
+            margin: 0 auto;
+            padding: 20px;
+        }
 
+        .file-upload-btn {
+            width: 100%;
+            margin: 0;
+            color: #fff;
+            background: #1FB264;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            border-bottom: 4px solid #15824B;
+            transition: all .2s ease;
+            outline: none;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        .file-upload-btn:hover {
+            background: #1AA059;
+            color: #ffffff;
+            transition: all .2s ease;
+            cursor: pointer;
+        }
+
+        .file-upload-btn:active {
+            border: 0;
+            transition: all .2s ease;
+        }
+
+        .file-upload-content {
+            display: none;
+            text-align: center;
+        }
+
+        .file-upload-input {
+            position: absolute;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            outline: none;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .image-upload-wrap {
+            margin-top: 20px;
+            border: 2px dashed #1FB264;
+            position: relative;
+        }
+
+        .image-dropping,
+        .image-upload-wrap:hover {
+            border: 2px dashed #7FB264;
+        }
+
+        .image-title-wrap {
+            padding: 0 15px 15px 15px;
+            color: #222;
+        }
+
+        .drag-text {
+            text-align: center;
+        }
+
+        .drag-text h3 {
+            font-weight: 100;
+            text-transform: uppercase;
+            color: #15824B;
+            padding: 60px 0;
+        }
+
+        .file-upload-image {
+            max-height: 200px;
+            max-width: 200px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        .remove-image {
+            width: 200px;
+            margin: 0;
+            color: #fff;
+            background: #cd4535;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            border-bottom: 4px solid #b02818;
+            transition: all .2s ease;
+            outline: none;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        .remove-image:hover {
+            background: #c13b2a;
+            color: #ffffff;
+            transition: all .2s ease;
+            cursor: pointer;
+        }
+
+        .remove-image:active {
+            border: 0;
+            transition: all .2s ease;
+        }
     </style>
     <!-- Custom styles for this template -->
     <link href="${pageContext.request.contextPath}/css/dashboard.css" rel="stylesheet">
@@ -342,6 +532,7 @@
                     <div class="btn-group mr-2">
                         <button type="button"  data-toggle="modal" data-target="#exampleModal" class="btn btn-sm btn-outline-danger">Sayfayı Sil</button>
                         <button type="button" data-toggle="modal" ng-click="page_info()" data-target="#exampleModal2" class="btn btn-sm btn-outline-secondary">Sayfayı Düzenle</button>
+                        <button type="button"  data-toggle="modal" data-target="#imageUpload" class="btn btn-sm btn-outline-primary">Resim Yükle</button>
                         <button type="button" ng-click="page_view()" class="btn btn-sm btn-outline-secondary">Sayfayı Görüntüle</button>
                     </div>
                     <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle">
@@ -369,6 +560,49 @@
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Kapat</button>
                             <button type="button" class="btn btn-primary"  ng-click="page_delete()" data-dismiss="modal">Sil</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Modal Upload İmage -->
+            <div class="modal fade" id="imageUpload" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Resim yükleme</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="file-upload">
+                                <button class="file-upload-btn" type="button" onclick="$('.file-upload-input').trigger( 'click' )">Resim Seçiniz</button>
+
+                                <div class="image-upload-wrap">
+                                    <input class="file-upload-input" type='file' onchange="readURL(this);" accept="image/*" />
+                                    <div class="drag-text">
+                                        <h3>İstediğiniz resmi sürükleyip bırakınız</h3>
+                                    </div>
+                                </div>
+                                <div class="file-upload-content">
+                                    <img class="file-upload-image" src="#" alt="your image" />
+                                    <div class="image-title-wrap">
+                                        <button type="button" onclick="removeUpload()" class="remove-image">Kaldır <span class="image-title">Uploaded Image</span></button>
+                                    </div>
+                                </div>
+                                <div ng-show="prgrss" class="progress" style="margin-top:20px;">
+                                    <div class="progress-bar bg-success" role="progressbar" ng-style="{'width':progressValue}" aria-valuenow="{{progressValue}}" aria-valuemin="0" aria-valuemax="100">{{progressValue}}</div>
+                                </div>
+                                <div style="margin-top: 20px;" ng-show="upcom">
+                                    <input type="text" ng-disabled="myinput==false" style="padding:4px;width: 300px;background:#ddd;border:1px solid#ccc;" value={{yuklenenimg}} id="myInput">
+                                    <button type="button" class="btn btn-outline-primary" style="float: right;height: 30px;padding: 3px;" onclick="myFunction()">Url yi kopyala</button>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Kapat</button>
+                            <button type="button" class="btn btn-primary"  ng-click="uploadimage()" >Yükle</button>
                         </div>
                     </div>
                 </div>

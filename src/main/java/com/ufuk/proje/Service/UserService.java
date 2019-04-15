@@ -14,4 +14,5 @@ public interface UserService {
     public void saveAuth(authorities authorities);
     public void saveUserSettings(initalize_model initalize_model);
     public void uploadTheme(Theme theme);
+    public initalize_model getSettings();
 }

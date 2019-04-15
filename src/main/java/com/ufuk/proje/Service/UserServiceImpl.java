@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
+import java.util.List;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -74,6 +75,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public void uploadTheme(Theme theme) {
         themeRepository.save(theme);
+    }
+
+    @Override
+    public initalize_model getSettings() {
+        List<initalize_model> settings  = ınıtalizeModelRepository.findAll();
+        return settings.get(0);
     }
 
 
