@@ -5,7 +5,6 @@ import com.ufuk.proje.Model.Page;
 import com.ufuk.proje.Model.Theme;
 import com.ufuk.proje.Model.initalize.initalize_model;
 import com.ufuk.proje.ProjeApplication;
-import com.ufuk.proje.Repository.BlogRepository;
 import com.ufuk.proje.Repository.InıtalizeModelRepository;
 import com.ufuk.proje.Service.BlogService;
 import com.ufuk.proje.Service.PageService;
@@ -16,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @Controller
