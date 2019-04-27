@@ -1,10 +1,8 @@
 package com.ufuk.proje.Controller;
 
-import com.ufuk.proje.Model.Context;
-import com.ufuk.proje.Model.Page;
-import com.ufuk.proje.Model.Theme;
-import com.ufuk.proje.Model.image;
+import com.ufuk.proje.Model.*;
 import com.ufuk.proje.Model.initalize.initalize_model;
+import com.ufuk.proje.Service.BlogService;
 import com.ufuk.proje.Service.PageService;
 import com.ufuk.proje.Service.ThemeService;
 import com.ufuk.proje.Service.UserService;
@@ -32,6 +30,9 @@ public class AdminDashboardController {
 
     @Autowired
     private ThemeService themeService;
+
+    @Autowired
+    private BlogService blogService;
 
     @PostMapping("createPage")
     public ResponseEntity<Page> createPage(@RequestBody Page page){
@@ -180,6 +181,12 @@ public class AdminDashboardController {
     @GetMapping("getCustomCss")
     public ResponseEntity<initalize_model> getCustomCss(){
         return ResponseEntity.ok(userService.getSettings());
+    }
+
+    @PostMapping("createBlog")
+    public ResponseEntity<Boolean> createBlog(@RequestBody Blog blog){
+        blogService.createBlog(blog);
+        return ResponseEntity.ok(Boolean.TRUE);
     }
 
 }

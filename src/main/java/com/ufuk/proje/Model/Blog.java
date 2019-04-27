@@ -1,9 +1,6 @@
 package com.ufuk.proje.Model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 public class Blog {
@@ -11,7 +8,8 @@ public class Blog {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int Id;
     private String title;
-    private String Content;
+    @Column(length = 10000000)
+    private String content;
 
     public int getId() {
         return Id;
@@ -30,10 +28,10 @@ public class Blog {
     }
 
     public String getContent() {
-        return Content;
+        return content;
     }
 
     public void setContent(String content) {
-        Content = content;
+        this.content = content;
     }
 }
