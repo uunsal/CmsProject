@@ -1,5 +1,6 @@
 package com.ufuk.proje.Model.initalize;
 
+import com.ufuk.proje.Model.Theme;
 import com.ufuk.proje.Model.User;
 
 import javax.persistence.*;
@@ -8,16 +9,18 @@ import javax.persistence.*;
 @Table(name = "Settings")
 public class initalize_model {
     @Id
-    private String Id="set-01";
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
     private String url;
     private int isAdmin;
-    private String theme = "Default";
     @OneToOne
     private User user;
     @Column(length = 1000000)
     private String profilePhoto;
     @Column(length = 1000000)
     private String customCss;
+    @OneToOne
+    private Theme theme;
 
     public String getProfilePhoto() {
         return profilePhoto;
@@ -35,12 +38,12 @@ public class initalize_model {
         this.customCss = customCss;
     }
 
-    public String getId() {
-        return Id;
+    public int getId() {
+        return id;
     }
 
-    public void setId(String id) {
-        Id = id;
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getUrl() {
@@ -65,6 +68,14 @@ public class initalize_model {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public Theme getTheme() {
+        return theme;
+    }
+
+    public void setTheme(Theme theme) {
+        this.theme = theme;
     }
 
     @Override

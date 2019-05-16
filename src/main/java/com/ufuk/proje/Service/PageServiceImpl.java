@@ -3,12 +3,12 @@ package com.ufuk.proje.Service;
 import com.ufuk.proje.Model.Page;
 import com.ufuk.proje.Model.Theme;
 import com.ufuk.proje.Model.image;
-import com.ufuk.proje.Repository.PageRepository;
-import com.ufuk.proje.Repository.ThemeRepository;
-import com.ufuk.proje.Repository.imageRepository;
+import com.ufuk.proje.Model.initalize.initalize_model;
+import com.ufuk.proje.Repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -16,18 +16,22 @@ import java.util.Optional;
 
 @Service
 public class PageServiceImpl implements PageService {
-    private PageRepository pageRepository;
-    private ThemeRepository themeRepository;
-    private imageRepository ımageRepository;
+    private final PageRepository pageRepository;
+    private final ThemeRepository themeRepository;
+    private final imageRepository ımageRepository;
+    private final InıtalizeModelRepository ınıtalizeModelRepository;
+    private final UserRepository userRepository;
     @Autowired
-    public PageServiceImpl(PageRepository pageRepository, ThemeRepository themeRepository, imageRepository ımageRepository) {
+    public PageServiceImpl(PageRepository pageRepository, ThemeRepository themeRepository, imageRepository ımageRepository, InıtalizeModelRepository ınıtalizeModelRepository, UserRepository userRepository) {
         this.pageRepository = pageRepository;
         this.themeRepository = themeRepository;
         this.ımageRepository = ımageRepository;
+        this.ınıtalizeModelRepository = ınıtalizeModelRepository;
+        this.userRepository = userRepository;
     }
 
     @Override
-    public String updatePage(Page page) {
+    public String updatePage(Page page, String username) {
         Optional<Page> temp_page = pageRepository.findById(page.getId());
         if(temp_page.isPresent()){
             if(temp_page.get().getDraft()){//sayfa taslak sayfa ise taslak olmayan canlı sayfaya dönüştürülür
@@ -36,6 +40,7 @@ public class PageServiceImpl implements PageService {
             //System.out.println("gelen_page"+page.toString());
             temp_page.get().setContents(page.getContents());
             //System.out.println("yazilan_page"+temp_page.toString());
+            temp_page.get().setUser(userRepository.findById(username).get());
             pageRepository.save(temp_page.get());
             return "true";
         }
@@ -43,8 +48,8 @@ public class PageServiceImpl implements PageService {
     }
 
     @Override
-    public Page createPage(Page page) {
-        List<Page> allPage=pageRepository.findByIsDraft(Boolean.FALSE);
+    public Page createPage(Page page,String username) {
+        List<Page> allPage=pageRepository.findByIsDraftAndUserUsernameOrderBySortNumber(Boolean.FALSE,username);
         List sortNumber = new ArrayList();
         for (Page p :allPage){
             sortNumber.add(p.getSortNumber());
@@ -56,6 +61,7 @@ public class PageServiceImpl implements PageService {
             page.setSortNumber(numbers+1);
         }
         page.setContents("");
+        page.setUser(userRepository.findById(username).get());
         pageRepository.save(page);
         return page;
     }
@@ -116,8 +122,8 @@ public class PageServiceImpl implements PageService {
     }
 
     @Override
-    public List<Page> getNotDraftPage() {
-        return pageRepository.findByIsDraft(false);
+    public List<Page> getNotDraftPage(String username) {
+        return pageRepository.findByIsDraftAndUserUsernameOrderBySortNumber(false,username);
     }
 
     @Override
@@ -135,6 +141,16 @@ public class PageServiceImpl implements PageService {
         pageRepository.save(page);
     }
 
+    @Override
+    public Page findByPageTypeAndPrinciple(String pagetype, String username) {
+        return pageRepository.findByPageTypeAndUserUsername(pagetype,username);
+    }
+
+    @Override
+    public Page findByUrlAndPrinciples(String url,String username) {
+        return pageRepository.findByUrlAndUserUsername(url,username);
+    }
+
 
     @Override
     public Page findByTitle(String title) {
@@ -143,13 +159,15 @@ public class PageServiceImpl implements PageService {
     @Override
     public Page findByUrl(String url) {return pageRepository.findByUrl(url);}
     @Override
-    public List<Page> findAllPage() {
-        return pageRepository.findAll();
+    public List<Page> findAllPage(String username) {
+        List<Page> pages = pageRepository.findAllByUserUsername(username);
+        return pages;
     }
 
     @Override
-    public List<Page> findAllPageIsNotDraft() { // taslak olmayan sayfaları döndürür.
-        List<Page> pages= pageRepository.findByIsDraft(Boolean.FALSE);
+    public List<Page> findAllPageIsNotDraft(String contextPath) { // taslak olmayan sayfaları döndürür.
+        initalize_model itm = ınıtalizeModelRepository.findByUrl("/"+contextPath);
+        List<Page> pages= pageRepository.findByIsDraftAndUserUsernameOrderBySortNumber(Boolean.FALSE,itm.getUser().getUsername());
         return pages;
     }
 
@@ -159,8 +177,11 @@ public class PageServiceImpl implements PageService {
     }
 
     @Override
-    public Theme getCurrentTheme() { // geçerli tema bilgisini döndürür
-        return themeRepository.findByIsActive(true);
+    public Theme getCurrentTheme(String contextPath) { // geçerli tema bilgisini döndürür
+        initalize_model itm = ınıtalizeModelRepository.findByUrl("/"+contextPath);
+        System.out.println(itm.getTheme());
+        return itm.getTheme();
     }
+
 
 }

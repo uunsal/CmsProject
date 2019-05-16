@@ -45,7 +45,8 @@
         ${setting.customCss}
     </style>
 </head>
-
+<!-- Ust Menu -->
+<jsp:include page="admin/adminHeader.jsp" />
 <body ng-app="myApp" ng-controller="myAppcntrl" ng-init="init()">
 
 <div class="d-flex" id="wrapper">
@@ -57,10 +58,10 @@
         <div class="list-group list-group-flush" style="text-align: center" >
             <c:forEach items="${pages}" var="page_item" varStatus="status">
                 <c:if test = '${page_item.url=="/"}'>
-                    <a href="${pageContext.request.contextPath}${page_item.url}" class="list-group-item list-group-item-action bg-dark text-light capitalize">${page_item.title}</a>
+                    <a href="${setting.url}${page_item.url}" class="list-group-item list-group-item-action bg-dark text-light capitalize">${page_item.title}</a>
                 </c:if>
                 <c:if test = '${page_item.url!="/"}'>
-                    <a href="${pageContext.request.contextPath}/pages${page_item.url}" class="list-group-item list-group-item-action bg-dark text-light capitalize">${page_item.title}</a>
+                    <a href="${setting.url}/pages${page_item.url}" class="list-group-item list-group-item-action bg-dark text-light capitalize">${page_item.title}</a>
                 </c:if>
 
             </c:forEach>

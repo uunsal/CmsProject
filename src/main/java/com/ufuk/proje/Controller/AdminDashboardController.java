@@ -2,6 +2,7 @@ package com.ufuk.proje.Controller;
 
 import com.ufuk.proje.Model.*;
 import com.ufuk.proje.Model.initalize.initalize_model;
+import com.ufuk.proje.Repository.InıtalizeModelRepository;
 import com.ufuk.proje.Service.BlogService;
 import com.ufuk.proje.Service.PageService;
 import com.ufuk.proje.Service.ThemeService;
@@ -11,11 +12,13 @@ import org.apache.commons.io.FileUtils;
 import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
+import java.security.Principal;
 import java.text.Normalizer;
 import java.util.*;
 
@@ -34,8 +37,11 @@ public class AdminDashboardController {
     @Autowired
     private BlogService blogService;
 
+    @Autowired
+    private InıtalizeModelRepository ınıtalizeModelRepository;
+
     @PostMapping("createPage")
-    public ResponseEntity<Page> createPage(@RequestBody Page page){
+    public ResponseEntity<Page> createPage(@RequestBody Page page,Principal principal){
         HashMap hsmp = new HashMap();
         hsmp.put("İ","I");hsmp.put("Ş","S");hsmp.put("Ğ","G");hsmp.put("Ç","C");hsmp.put("Ü","U");
         // Türkçe Karakterlere Dikkat edilmeli
@@ -56,7 +62,7 @@ public class AdminDashboardController {
         }
         page.setContents("");
 
-        Page page_control = pageService.findByUrl(page.getUrl()); // sayfa yoksa sayfayı oluşturur.
+        Page page_control = pageService.findByUrlAndPrinciples(page.getUrl(),principal.getName()); // sayfa yoksa sayfayı oluşturur.
         System.out.println(page_control);
         if(page.getPageType()==null) page.setPageType("sample"); // gelişmiş seçenekte sayfa türü belirtilmemişse sample dır
         if(!page.getPageType().equals("sample")){
@@ -66,7 +72,7 @@ public class AdminDashboardController {
             }
         }
         if(page_control==null){
-            return ResponseEntity.ok(pageService.createPage(page));
+            return ResponseEntity.ok(pageService.createPage(page,principal.getName()));
         }
         return ResponseEntity.ok(null);
 //        try {
@@ -83,18 +89,19 @@ public class AdminDashboardController {
     }
 
     @PostMapping("updatePage")
-    public ResponseEntity<String> updatePage(@RequestBody Page page){ // sayfaları güncelleyen fonksiyon
-        return ResponseEntity.ok(pageService.updatePage(page));
+    public ResponseEntity<String> updatePage(@RequestBody Page page,Principal principal){ // sayfaları güncelleyen fonksiyon
+        return ResponseEntity.ok(pageService.updatePage(page,principal.getName()));
     }
     @PostMapping("deletePage")
     public void deletePage(@RequestBody Page page){
         pageService.deletePage(page);
     }
     @GetMapping("initPages")
-    public ResponseEntity<List<Page>> initPages(){
+    public ResponseEntity<List<Page>> initPages(Principal principal){
 
         //System.out.println(page.toString());
-        return ResponseEntity.ok(pageService.findAllPage());
+        System.out.println(principal.getName());
+        return ResponseEntity.ok(pageService.findAllPage(principal.getName()));
     }
 
     @PostMapping("getPage")
@@ -132,8 +139,8 @@ public class AdminDashboardController {
     }
 
     @GetMapping("getNotDraftPage")
-    public ResponseEntity<List<Page>> getNotDraftPage(){
-        return ResponseEntity.ok(pageService.getNotDraftPage());
+    public ResponseEntity<List<Page>> getNotDraftPage(Principal principal){
+        return ResponseEntity.ok(pageService.getNotDraftPage(principal.getName()));
     }
 
     @PostMapping("uploadPhoto")
@@ -150,13 +157,13 @@ public class AdminDashboardController {
     }
 
     @PostMapping("changeTheme")
-    public void changeTheme(@RequestBody Theme theme){
+    public void changeTheme(@RequestBody Theme theme,Principal principal){
         System.out.println(theme.getId());
-        themeService.changeTheme(theme);
+        themeService.changeTheme(theme,principal.getName());
     }
 
     @PostMapping("changeMenuSort")
-    public void changeMenuSort(@RequestBody List<Page> pages){
+    public void changeMenuSort(@RequestBody List<Page> pages,Principal principal){
         int sayac=0;
         for (Page p: pages){
             Optional<Page> page  = pageService.findById(p.getId());
@@ -187,6 +194,57 @@ public class AdminDashboardController {
     public ResponseEntity<Boolean> createBlog(@RequestBody Blog blog){
         blogService.createBlog(blog);
         return ResponseEntity.ok(Boolean.TRUE);
+    }
+
+    @GetMapping("getAllUser")
+    public ResponseEntity<List<User>> getAllUser(){
+        return ResponseEntity.ok(userService.findAll());
+    }
+
+    @PostMapping("superCreate")
+    public ResponseEntity<User> superCreate(@RequestBody initalize_model initalize_model){
+        initalize_model itm = new initalize_model();
+        if(initalize_model.getUrl().charAt(0)!='/') {
+            String url = initalize_model.getUrl();
+            initalize_model.setUrl("/"+url);
+        }
+        itm.setUrl(initalize_model.getUrl());
+        itm.setIsAdmin(1);
+        Theme t = themeService.getDefaultTheme("Default");
+        Page p = new Page();
+        p.setPageType("home");
+        p.setUrl("/");
+        p.setContents("");
+        p.setTitle("ana sayfa");
+        p.setDraft(false);
+        itm.setTheme(t);
+        User u = new User();
+        String username = initalize_model.getUser().getFirstName()
+                .toLowerCase().charAt(0)+initalize_model.getUser().getLastName().toLowerCase();
+        u.setUsername(username);
+        u.setEnabled(true);
+        u.setUnvan(initalize_model.getUser().getUnvan());
+        u.setFirsNtame(initalize_model.getUser().getFirstName());
+        u.setLastName(initalize_model.getUser().getLastName());
+        u.setEmail(initalize_model.getUser().getEmail());
+        authorities authorities = new authorities();
+        authorities.setUsername(u.getUsername());
+        authorities.setAuthority("ROLE_ADMIN");
+        String pass = "";
+        Random r = new Random();
+        for (int i=0;i<5;i++){
+            pass+=r.nextInt(10);
+        }
+        u.setPassword("{bcrypt}"+new BCryptPasswordEncoder().encode(pass));
+        itm.setUser(u);
+        p.setUser(u);
+        userService.saveUser(u);
+        pageService.createPage(p,u.getUsername());
+        ınıtalizeModelRepository.save(itm);
+        userService.saveAuth(authorities);
+        u.setPassword(pass);
+        return ResponseEntity.ok(u);
+
     }
 
 }

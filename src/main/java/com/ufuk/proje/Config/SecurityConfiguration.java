@@ -21,11 +21,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        http.authorizeRequests().antMatchers("/admin/**").authenticated();
         http.authorizeRequests().antMatchers("/**/favicon.ico","/chart/**", "/css/**", "js/**", "/images/**",
-                "/vendor/**","/webjars/**","/","/user/**","/admin/login","/pages/**")
+                "/vendor/**","/webjars/**","/","/user/**","/login","/**")
                 .permitAll();
         http.authorizeRequests().anyRequest().authenticated();
-        http.formLogin().loginPage("/admin/login").loginProcessingUrl("/admin/login").failureUrl("/admin/login?loginFailed=true")
+        http.formLogin().loginPage("/login").loginProcessingUrl("/login").failureUrl("/login?loginFailed=true")
                 .defaultSuccessUrl("/admin/",true);
         http.logout().logoutUrl("/admin/logout");
         http.csrf().disable();

@@ -44,12 +44,12 @@
                 <c:forEach items="${pages}" var="page_item" varStatus="status">
                     <c:if test = '${page_item.url=="/"}'>
                     <li class="nav-item active">
-                    <a href="${pageContext.request.contextPath}${page_item.url}" class="nav-link">${page_item.title}</a>
+                    <a href="${setting.url}${page_item.url}" class="nav-link">${page_item.title}</a>
                     </li>
                     </c:if>
                     <c:if test = '${page_item.url!="/"}'>
                     <li class="nav-item">
-                        <a href="${pageContext.request.contextPath}/pages${page_item.url}" class="nav-link">${page_item.title}</a>
+                        <a href="${setting.url}/pages${page_item.url}" class="nav-link">${page_item.title}</a>
                     </li>
                     </c:if>
 

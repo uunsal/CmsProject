@@ -1,5 +1,6 @@
 package com.ufuk.proje.Model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.*;
@@ -18,6 +19,11 @@ public class Page {
     private Boolean isDraft; // taslak sayfa kontrolü için kullanıldı
     @Column(name = "sort_numbers")
     private int sortNumber; // sayfanın sıra numarası
+
+    @JoinColumn(name = "user_id")
+    @ManyToOne(optional = true, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private User user;
     public int getId() {
         return ıd;
     }
@@ -72,6 +78,14 @@ public class Page {
 
     public void setSortNumber(int sortNumber) {
         this.sortNumber = sortNumber;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     @Override

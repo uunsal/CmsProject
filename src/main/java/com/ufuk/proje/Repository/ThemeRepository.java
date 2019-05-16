@@ -7,6 +7,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ThemeRepository extends JpaRepository<Theme,Integer> {
-    public Theme findByIsActive(Boolean active);
-
+    Theme findByUrl(String url);
 }

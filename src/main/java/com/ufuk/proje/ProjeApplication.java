@@ -17,7 +17,7 @@ public class ProjeApplication {
         if(readInıtalize()){
             String url=String.valueOf(hsmp.get("url"));
             if(url.charAt(0)!='/') url="/"+url;
-            System.setProperty("server.servlet.context-path", url);
+            //System.setProperty("server.servlet.context-path", url);
         }
         else{
             System.setProperty("server.servlet.context-path", "/setup");

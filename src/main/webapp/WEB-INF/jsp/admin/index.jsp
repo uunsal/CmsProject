@@ -32,6 +32,10 @@
                 font-size: 3.5rem;
             }
         }
+
+        .bg-purple {
+            background-color: #b52525;
+        }
     </style>
     <!-- Custom styles for this template -->
     <link href="${pageContext.request.contextPath}/css/dashboard.css" rel="stylesheet">
@@ -59,7 +63,13 @@
                     </button>
                 </div>
             </div>
-
+            <div class="d-flex align-items-center p-3 my-3 text-white-50 bg-purple rounded shadow-sm">
+                <img class="mr-3 bg-light" src="http://ktun.edu.tr/Content/images/logo/logo3.png" alt="" width="158" height="48">
+                <div class="lh-100">
+                    <h6 class="mb-0 text-white lh-100">Hoşgeldiniz ${user}</h6>
+                    <small>Konya Teknik Üniversitesi Web Sayfaları Yönetim Sistemi</small>
+                </div>
+            </div>
         </main>
     </div>
 </div>

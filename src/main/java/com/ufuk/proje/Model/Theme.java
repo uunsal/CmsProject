@@ -1,5 +1,7 @@
 package com.ufuk.proje.Model;
 
+import com.ufuk.proje.Model.initalize.initalize_model;
+
 import javax.persistence.*;
 
 @Entity
@@ -8,25 +10,35 @@ public class Theme {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int Id;
     private String name;
+    private String url;
     @Column(name = "screenshouts", length = 1000000)
     private String ScreenShout;
-    private Boolean isActive;
     private String description;
-
     public int getId() {
         return Id;
+    }
+    @JoinColumn(name = "itm_id")
+    @OneToOne
+    private initalize_model initalizeModel;
+
+    public initalize_model getInitalizeModel() {
+        return initalizeModel;
+    }
+
+    public void setInitalizeModel(initalize_model initalizeModel) {
+        this.initalizeModel = initalizeModel;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     public void setId(int id) {
         Id = id;
-    }
-
-    public Boolean getActive() {
-        return isActive;
-    }
-
-    public void setActive(Boolean active) {
-        isActive = active;
     }
 
     public String getName() {

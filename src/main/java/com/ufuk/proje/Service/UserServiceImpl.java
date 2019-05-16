@@ -83,5 +83,15 @@ public class UserServiceImpl implements UserService {
         return settings.get(0);
     }
 
+    @Override
+    public initalize_model checkContext(String contextPath) {
+        return ınıtalizeModelRepository.findByUrl("/"+contextPath);
+    }
+
+    @Override
+    public List<User> findAll() {
+        return userRepository.findAll();
+    }
+
 
 }

@@ -8,7 +8,6 @@ import com.ufuk.proje.ProjeApplication;
 import com.ufuk.proje.Service.PageService;
 import com.ufuk.proje.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,9 +27,9 @@ public class UserController {
         //System.out.println(initalize_model.toString());
         authorities authorities = new authorities();
         authorities.setUsername(initalize_model.getUser().getUsername());
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        //BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         String temp_pass=initalize_model.getUser().getPassword();
-        initalize_model.getUser().setPassword("{bcrypt}"+passwordEncoder.encode(temp_pass));
+        //initalize_model.getUser().setPassword("{bcrypt}"+passwordEncoder.encode(temp_pass));
         initalize_model.getUser().setEnabled(true);
         if(initalize_model.getUrl().charAt(0)!='/') {
             String temp_url=initalize_model.getUrl();
@@ -48,7 +47,7 @@ public class UserController {
         page.setPageType("home");
         page.setTitle("ana sayfa");
         Theme theme = new Theme();
-        theme.setActive(true);
+        //theme.setActive(true);
         theme.setName("Default");
         theme.setScreenShout("");
         theme.setDescription("web sayfanızı ilk oluşturduğunuzda seçili olarak gelen koyu ağırlıklı tema.");

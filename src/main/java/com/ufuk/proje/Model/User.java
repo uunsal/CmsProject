@@ -2,11 +2,9 @@ package com.ufuk.proje.Model;
 
 import com.ufuk.proje.Model.initalize.initalize_model;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -20,6 +18,9 @@ public class User {
     private String lastName;
     private String email;
     private String unvan;
+    @OneToMany
+    private List<Page> pageList;
+
 
     public String getFirstName() {
         return firstName;

@@ -8,16 +8,20 @@ import com.ufuk.proje.ProjeApplication;
 import com.ufuk.proje.Repository.InıtalizeModelRepository;
 import com.ufuk.proje.Service.BlogService;
 import com.ufuk.proje.Service.PageService;
+import com.ufuk.proje.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
-
 import java.util.ArrayList;
 import java.util.List;
 
 @Controller
+@RequestMapping("/{contextPath}")
 public class WebController {
     @Autowired
     private PageService pageService;
@@ -25,55 +29,87 @@ public class WebController {
     private InıtalizeModelRepository ınıtalizeModelRepository;
     @Autowired
     private BlogService blogService;
+    @Autowired
+    private UserService userService;
     @PostMapping("/restart")
     public void restart() {
         ProjeApplication.restart();
     }
-    @RequestMapping(value={"/"})
-    public ModelAndView index(){
-        Theme currentTheme = pageService.getCurrentTheme();
-        initalize_model itm = ınıtalizeModelRepository.findAll().get(0); // settings
-        ModelAndView mav = new ModelAndView();
-        if(ProjeApplication.readInıtalize()){
-            mav.addObject("setting",itm); // custom css  gibi ayarları almak için kullanıldı
-            mav.addObject("pages",pageService.findAllPageIsNotDraft()); // tüm sayfaları menü için eklenir. // taslakların dışında
-            mav.addObject("page",pageService.findByTitle("ana sayfa")); //findbypagetype a göre yapılabilir. ****!!!
-            mav.setViewName("/themes/"+currentTheme.getName()+"/sample");
-        }else {
-            mav.setViewName("setup");
+    @RequestMapping(value={""})
+    public ModelAndView index(@PathVariable("contextPath") String contextPath){
+        if(contextPath.equals("login")){
+            //Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            ModelAndView mav = new ModelAndView();
+            //if (!(auth instanceof AnonymousAuthenticationToken)) {// zaten kullanıcı girişi yapılmışla login sayfası gösterilmez..
+            //mav.setViewName("admin/index"); // zaten yetkilindirildiyse anasayfaya döndürür
+            //return mav;
+            //}
+            mav.setViewName("admin/login");
+            return mav;
         }
+        ModelAndView mav = new ModelAndView();
+        if(userService.checkContext(contextPath)!=null) {
+            Theme currentTheme = pageService.getCurrentTheme(contextPath);
+            initalize_model itm = ınıtalizeModelRepository.findByUrl("/"+contextPath); // settings
+            mav = new ModelAndView();
+            mav.addObject("setting",itm); // custom css  gibi ayarları almak için kullanıldı
+            mav.addObject("pages",pageService.findAllPageIsNotDraft(contextPath)); // tüm sayfaları menü için eklenir. // taslakların dışında
+            mav.addObject("page",pageService.findByPageTypeAndPrinciple("home",itm.getUser().getUsername())); //findbypagetype a göre yapılabilir. ****!!!
+            mav.setViewName("/themes/"+currentTheme.getUrl()+"/sample");
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            if (!(auth instanceof AnonymousAuthenticationToken)) {// zaten kullanıcı girişi yapılmışsa.
+                mav.addObject("user",itm.getUser().getUsername());
+                mav.addObject("auth",true);
+            }
+            else{mav.addObject("auth",false);}
+            return mav;
+        }
+        mav.setViewName("/404.html");
         return mav;
     }
 
-    @GetMapping("pages/{page}")
-    public ModelAndView pages(@PathVariable String page){
-        Theme currentTheme = pageService.getCurrentTheme(); // geçerli tema bilgisi
-        initalize_model itm = ınıtalizeModelRepository.findAll().get(0); // settings
-        List sayfalar = pageService.findAllPage();
-        List<String> sayfa_isimleri = new ArrayList();
-        for(Object p: sayfalar){
-            if(!((Page) p).getUrl().equals("/")) sayfa_isimleri.add(((Page) p).getUrl().split("/")[1]);
-        }
-        System.out.println(sayfa_isimleri);
-        ModelAndView mav =  new ModelAndView();
-        System.out.println(sayfa_isimleri);
-        if(sayfa_isimleri.contains(page) && page!="/"){
-            mav.addObject("page",pageService.findByUrl("/"+page));
-            mav.addObject("setting",itm); // custom css  gibi ayarları almak için kullanıldı
-            List<Page> allPageIsNotDraft = pageService.findAllPageIsNotDraft();
-            mav.addObject("pages",allPageIsNotDraft); // tüm sayfaları menü için eklenir. //taslakların dışında
-            Page currentPage = pageService.findByUrl("/"+page);
-            if(currentPage.getPageType().equals("blog")){
-                int allblogSize = blogService.findAllSize();
-                int pageNumber = (allblogSize/5);
-                //if(allblogSize%5!=0)pageNumber+=1;
-                List<Blog> blogs = blogService.findAll(new PageRequest(0,5));
-                mav.addObject("blogs",blogs);
-                mav.addObject("pagenumbers",pageNumber);
-                mav.setViewName("/themes/"+currentTheme.getName()+"/blog");
+    @GetMapping("/pages/{page}")
+    public ModelAndView pages(@PathVariable String page,@PathVariable("contextPath") String contextPath){
+        ModelAndView mav = new ModelAndView();
+        if(userService.checkContext(contextPath)!=null) {
+            Theme currentTheme = pageService.getCurrentTheme(contextPath); // geçerli tema bilgisi
+            initalize_model itm = ınıtalizeModelRepository.findByUrl("/"+contextPath); // settings
+            List sayfalar = pageService.findAllPageIsNotDraft(contextPath);
+            List<String> sayfa_isimleri = new ArrayList();
+            for (Object p : sayfalar) {
+                if (!((Page) p).getUrl().equals("/")) sayfa_isimleri.add(((Page) p).getUrl().split("/")[1]);
             }
-            else mav.setViewName("/themes/"+currentTheme.getName()+"/sample");
-            System.out.println("/themes/"+currentTheme.getName()+"/sample");
+            //System.out.println("sayfalar"+sayfalar);
+            System.out.println(sayfa_isimleri);
+            mav = new ModelAndView();
+            System.out.println(sayfa_isimleri);
+            if (sayfa_isimleri.contains(page) && page != "/") {
+                System.out.println(page);
+                mav.addObject("page", pageService.findByUrlAndPrinciples("/" + page,itm.getUser().getUsername()));
+                mav.addObject("setting", itm); // custom css  gibi ayarları almak için kullanıldı
+                List<Page> allPageIsNotDraft = pageService.findAllPageIsNotDraft(contextPath);
+                mav.addObject("pages", allPageIsNotDraft); // tüm sayfaları menü için eklenir. //taslakların dışında
+                Page currentPage = pageService.findByUrlAndPrinciples("/" + page,itm.getUser().getUsername());
+                if (currentPage.getPageType().equals("blog")) {
+                    int allblogSize = blogService.findAllSize();
+                    int pageNumber = (allblogSize / 5);
+                    //if(allblogSize%5!=0)pageNumber+=1;
+                    List<Blog> blogs = blogService.findAll(new PageRequest(0, 5));
+                    mav.addObject("blogs", blogs);
+                    mav.addObject("pagenumbers", pageNumber);
+                    mav.setViewName("/themes/" + currentTheme.getUrl() + "/blog");
+                } else mav.setViewName("/themes/" + currentTheme.getUrl() + "/sample");
+                System.out.println("/themes/" + currentTheme.getUrl() + "/sample");
+                Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+                if (!(auth instanceof AnonymousAuthenticationToken)) {// zaten kullanıcı girişi yapılmışsa.
+                    System.out.println(itm.getUser().getUsername());
+                    mav.addObject("user",itm.getUser().getUsername());
+                    mav.addObject("auth",true);
+                }
+                else{mav.addObject("auth",false);}
+                return mav;
+            }
+            mav.setViewName("/404.html");
             return mav;
         }
         mav.setViewName("/404.html");
@@ -82,9 +118,9 @@ public class WebController {
 
 
     @GetMapping("pages/{page}/{pageno}")
-    public ModelAndView blogPages(@PathVariable String page,@PathVariable int pageno){  // sayfalandırılmış bloglar için kullanıldı
+    public ModelAndView blogPages(@PathVariable String page,@PathVariable int pageno,@PathVariable("contextPath") String contextPath){  // sayfalandırılmış bloglar için kullanıldı
         Page currentPage = pageService.findByUrl("/"+page);
-        Theme currentTheme = pageService.getCurrentTheme(); // geçerli tema bilgisi
+        Theme currentTheme = pageService.getCurrentTheme(contextPath); // geçerli tema bilgisi
         ModelAndView mav = new ModelAndView();
         if(currentPage.getPageType().equals("blog")){
             int allblogSize = blogService.findAllSize();
@@ -96,11 +132,17 @@ public class WebController {
             initalize_model itm = ınıtalizeModelRepository.findAll().get(0); // settings
             mav.addObject("setting",itm); // custom css  gibi ayarları almak için kullanıldı
             mav.addObject("blogs",blogs);
-            List<Page> allPageIsNotDraft = pageService.findAllPageIsNotDraft();
+            List<Page> allPageIsNotDraft = pageService.findAllPageIsNotDraft(contextPath);
             mav.addObject("pages",allPageIsNotDraft); // tüm sayfaları menü için eklenir. //taslakların dışında
             mav.setViewName("/themes/"+currentTheme.getName()+"/blog");
         }
         return mav;
+    }
+
+    @GetMapping("/admin/**")
+    public ModelAndView adminPath(){
+        System.out.println("admineatıldı");
+        return null;
     }
 
 

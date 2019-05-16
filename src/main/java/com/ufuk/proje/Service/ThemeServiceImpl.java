@@ -26,16 +26,22 @@ public class ThemeServiceImpl implements ThemeService {
     }
 
     @Override
-    public void changeTheme(Theme theme) { //tema değiştirme işlemini yapar.
-        List<Theme> allTheme = themeRepository.findAll();
-        for(Theme t: allTheme){
-            t.setActive(false);
-            themeRepository.save(t);
-        }
-        Optional<Theme> enableTheme = themeRepository.findById(theme.getId());
-        if(enableTheme.isPresent()){
-            enableTheme.get().setActive(true);
-            themeRepository.save(enableTheme.get());
+    public void changeTheme(Theme theme,String username) { //tema değiştirme işlemini yapar.
+//        List<Theme> allTheme = themeRepository.findAll();
+//        for(Theme t: allTheme){
+//            t.setActive(false);
+//            themeRepository.save(t);
+//        }
+//        Optional<Theme> enableTheme = themeRepository.findById(theme.getId());
+//        if(enableTheme.isPresent()){
+//            enableTheme.get().setActive(true);
+//            themeRepository.save(enableTheme.get());
+//        }
+        initalize_model itm = ınıtalizeModelRepository.findByUserUsername(username);
+        Optional<Theme> t = themeRepository.findById(theme.getId());
+        if(t.isPresent()){
+            itm.setTheme(t.get());
+            ınıtalizeModelRepository.save(itm);
         }
     }
 
@@ -45,5 +51,10 @@ public class ThemeServiceImpl implements ThemeService {
         initalize_model setting = settings.get(0);
         setting.setCustomCss(customCss);
         ınıtalizeModelRepository.save(setting);
+    }
+
+    @Override
+    public Theme getDefaultTheme(String url) {
+        return themeRepository.findByUrl(url);
     }
 }
