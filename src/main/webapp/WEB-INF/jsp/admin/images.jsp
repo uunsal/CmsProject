@@ -333,10 +333,8 @@
             <!-- Page Content -->
             <div class="container">
                 <div class="row text-center text-lg-left">
-                    <div ng-repeat="rsm in rsmler" class="col-lg-3 col-md-4 col-6">
-                        <a href="#" class="d-block mb-4 h-100">
-                            <img class="img-fluid img-thumbnail" ng-click = "image_modal(rsm)" data-toggle="modal" data-target="#exampleModal" src={{rsm.imageBase64}} alt="">
-                        </a>
+                    <div ng-repeat="rsm in rsmler" class="col-md-3" style="height: 300px;">
+                            <img class="img-fluid img-thumbnail" ng-click = "image_modal(rsm)"  data-toggle="modal" data-target="#exampleModal" src={{rsm.imageBase64}} height="200px;" alt="">
                     </div>
 
                 </div>

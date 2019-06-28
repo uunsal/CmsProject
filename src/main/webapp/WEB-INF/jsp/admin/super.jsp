@@ -210,7 +210,10 @@
                     </form>
                 </div>
                 <c:set var = "sayac" scope = "session" value = "0"/>
-                <div class="media text-muted pt-3" ng-repeat="u in users | filter:searchText">
+                <div class="row">
+                    <div class="col-sm-3" ng-repeat="u in users | filter:searchText">
+                <div class="media text-muted pt-3"  >
+
                     <c:if test="${sayac%2==0}">
                         <c:set var = "sayac" scope = "session" value = "1"/>
                         <svg class="bd-placeholder-img mr-2 rounded" width="32" height="32"
@@ -225,6 +228,8 @@
                         {{u.unvan}}
                     </p>
                 </div>
+                </div>
+                   </div>
                 <small class="d-block text-right mt-3">
                     <a href="#">Tüm Kullanıcılar</a>
                 </small>

@@ -67,6 +67,16 @@
                     //error message
                 });
 
+                $http({//page images
+                    method: 'GET',
+                    url: 'dashboard/findAllImage'
+                }).then(function successCallback(response) {
+                        $scope.rsmler = response.data;
+                    }
+                    , function errorCallback(response) {
+                        //error message
+
+                    });
 
             }
             $scope.createPage = function(bool_data){
@@ -89,6 +99,9 @@
                     }
                     if($scope.page_type==3){
                         pagetype="sample";
+                    }
+                    if($scope.page_type==4){
+                        pagetype="contact";
                     }
                     created_page = {title:$scope.page_name,pageType:pagetype,url:$scope.page_url_opt,draft:bool_data};
                     console.log(created_page);
@@ -244,10 +257,10 @@
                 console.log($scope.goster_url);
                 $scope.select_sample=true;
                 if ($scope.goster_url=="/"){
-                    $scope.redirec=$scope.contextPath+$scope.goster_url;
+                    $scope.redirec="/"+$scope.contextPath+$scope.goster_url;
                 }
                 else{
-                    $scope.redirec=$scope.contextPath+"/pages"+$scope.goster_url;
+                    $scope.redirec="/"+$scope.contextPath+"/pages"+$scope.goster_url;
                 }
                 window.open($scope.redirec);
             }
@@ -533,7 +546,8 @@
                         <button type="button"  data-toggle="modal" data-target="#exampleModal" class="btn btn-sm btn-outline-danger">Sayfayı Sil</button>
                         <button type="button" data-toggle="modal" ng-click="page_info()" data-target="#exampleModal2" class="btn btn-sm btn-outline-secondary">Sayfayı Düzenle</button>
                         <button type="button"  data-toggle="modal" data-target="#imageUpload" class="btn btn-sm btn-outline-primary">Resim Yükle</button>
-                        <button type="button" ng-click="page_view()" class="btn btn-sm btn-outline-secondary">Sayfayı Görüntüle</button>
+                        <button type="button"  data-toggle="modal" data-target="#exampleModalİmgse" class="btn btn-sm btn-outline-secondary">Resimleri Görüntüle</button>
+                        <button type="button" ng-click="page_view()" class="btn btn-sm btn-outline-primary">Sayfayı Görüntüle</button>
                     </div>
                     <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle">
                         <span data-feather="calendar"></span>
@@ -556,6 +570,30 @@
                         <div class="modal-body">
                             Sayfa içeriklerini silmek üzeresiniz onaylıyormusunuz?
                             <%--{{delete_message}}--%>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Kapat</button>
+                            <button type="button" class="btn btn-primary"  ng-click="page_delete()" data-dismiss="modal">Sil</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Modal Select İmages -->
+            <div class="modal fade bd-example-modal-xl" tabindex="-1" role="dialog" id ="exampleModalİmgse" aria-labelledby="myExtraLargeModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-xl">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Resimler</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row" style="margin: 0 auto;">
+                                <div class="resim_listele col-sm-2" style="" ng-repeat="r in rsmler">
+                                    <img src={{r.imageBase64}} width="150" height="150" alt="..." class="rounded">
+                                </div>
+                            </div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Kapat</button>
@@ -644,6 +682,7 @@
                                     <option value="0" ng-selected = "select_Sample==true" selected>Boş Sayfa</option>
                                     <option value="1">Blog</option>
                                     <option value="2">Ana Sayfa</option>
+                                    <option value="3">İletişim</option>
 
                                 </select>
                             </div>
@@ -689,6 +728,7 @@
                                     <option value="1">Blog</option>
                                     <option value="2">Ana Sayfa</option>
                                     <option value="3">Boş Sayfa</option>
+                                    <option value="4">İletişim</option>
                                 </select>
                             </div>
                             <div class="col-sm">
@@ -714,9 +754,7 @@
                                 // Replace the <textarea id="editor1"> with a CKEditor
                                 // instance, using default configuration.
                                 CKEDITOR.replace('editor1', {
-                                    height: 500,
-                                    filebrowserBrowseUrl: '#modal',
-                                    filebrowserUploadUrl: '/uploader/upload.php'
+                                    height: 600,
                                 });
 
                             </script>

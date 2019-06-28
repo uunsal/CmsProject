@@ -2,6 +2,7 @@ package com.ufuk.proje.Service;
 
 import com.ufuk.proje.Model.Page;
 import com.ufuk.proje.Model.Theme;
+import com.ufuk.proje.Model.User;
 import com.ufuk.proje.Model.image;
 import com.ufuk.proje.Model.initalize.initalize_model;
 import com.ufuk.proje.Repository.*;
@@ -132,8 +133,8 @@ public class PageServiceImpl implements PageService {
     }
 
     @Override
-    public List<image> findAllImage() {
-        return ımageRepository.findAll();
+    public List<image> findAllImage(String username) {
+        return ımageRepository.findByUsername(username);
     }
 
     @Override
@@ -182,6 +183,19 @@ public class PageServiceImpl implements PageService {
         System.out.println(itm.getTheme());
         return itm.getTheme();
     }
+    @Override
+    public void updateCv(Page page,String principal){
+        Optional<Page> p = pageRepository.getByUrlAndUserUsername("/cv",principal);
+        if(!p.isPresent()){
+            User user = userRepository.findByUsername(principal);
+            page.setUser(user);
+            pageRepository.save(page);
+        }
+
+
+    }
+
+
 
 
 }

@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface PageRepository extends JpaRepository<Page, Integer> {
@@ -22,4 +23,6 @@ public interface PageRepository extends JpaRepository<Page, Integer> {
     public Page findByPageTypeAndUserUsername(String pageType,String username);
 
     public Page findByUrlAndUserUsername(String url, String principles);
+    public Optional<Page> getByUrlAndUserUsername(String url, String principles);
+
 }

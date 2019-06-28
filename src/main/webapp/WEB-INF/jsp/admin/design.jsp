@@ -44,7 +44,8 @@
     </style>
     <script>
         var app = angular.module('myApp', []);
-        app.controller('myAppcntrl', function ($scope, $http, $log,$location,$timeout,$window) {
+        app.controller('myAppcntrl', function ($scope, $http, $log,$location,$timeout,$window,$sce) {
+
             $scope.init = function () {
                 $http({//page information
                     method: 'GET',
@@ -111,7 +112,17 @@
                     //error message
                 });
             }
-
+            $scope.previewTheme = function (theme) {
+                $http({//page information
+                    method: 'GET',
+                    url: 'admin/previewT?id='+theme.id,
+                    data:{id:theme.id}
+                }).then(function successCallback(response) {
+                    $scope.frmsrc=$sce.trustAsResourceUrl("http://www.selcuk.edu.tr");
+                }, function errorCallback(response) {
+                    //error message
+                });
+            }
             $scope.alertFunct = function(gelen,type,message){
                 $scope.alertContent=message;
                 $scope.alert_type=type;
@@ -134,8 +145,87 @@
                 });
             }
 
-        })
+            $scope.uploadimage = function () {
+                $scope.prgrss=true;
+                //console.log("yuklenen",globalimage);
+                $http({
+                    method: 'POST',
+                    url: 'dashboard/updateProfilePhoto',
+                    data:{profilePhoto:globalimage}
+                }).then(function successCallback(response) {
+                }, function errorCallback(response) {
+                    // called asynchronously if an error occurs
+                    // or server returns response with an error status.
+                })
+                $timeout(function() {
+                    for (var i = 0 ;i<101;i++){
+                        $scope.progressValue = i+'%';
 
+                    }
+                    $scope.yuklenenimg=globalimage;
+                    $scope.upcom=true;
+                    $scope.init();
+                }, 600);
+
+
+
+            }
+
+        })
+        function encodeImageFileAsURL(element) {
+            var file = element.files[0];
+            var reader = new FileReader();
+            reader.onloadend = function() {
+                //console.log('RESULT', reader.result)
+                globalimage = reader.result;
+
+            }
+            reader.readAsDataURL(file);
+        }
+        function readURL(input) {
+            if (input.files && input.files[0]) {
+
+                var reader = new FileReader();
+
+                reader.onload = function(e) {
+                    $('.image-upload-wrap').hide();
+
+                    $('.file-upload-image').attr('src', e.target.result);
+                    $('.file-upload-content').show();
+
+                    $('.image-title').html(input.files[0].name);
+                };
+
+                reader.readAsDataURL(input.files[0]);
+                encodeImageFileAsURL(input)
+
+            } else {
+                removeUpload();
+            }
+        }
+
+        function removeUpload() {
+            $('.file-upload-input').replaceWith($('.file-upload-input').clone());
+            $('.file-upload-content').hide();
+            $('.image-upload-wrap').show();
+        }
+        $('.image-upload-wrap').bind('dragover', function () {
+            $('.image-upload-wrap').addClass('image-dropping');
+        });
+        $('.image-upload-wrap').bind('dragleave', function () {
+            $('.image-upload-wrap').removeClass('image-dropping');
+        });
+
+        function myFunction() {
+            var copyText = document.getElementById("myInput");
+            copyText.select();
+
+            copied = document.execCommand('copy');
+            $timeout(function() {
+                $scope.myinpuy=false;
+            }, 50);
+
+        }
         $(function () {
             $('#sortable').sortable({
                 tolerance: 'touch',
@@ -146,13 +236,135 @@
             $('#item').sortable();
         });
 
+
     </script>
+    <style>
+        .capitalize {
+            text-transform: capitalize;
+        }
+        .file-upload {
+            background-color: #ffffff;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .file-upload-btn {
+            width: 600px;
+            margin: 0;
+            color: #fff;
+            background: #525252;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            border-bottom: 4px solid #333333;
+            transition: all .2s ease;
+            outline: none;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        .file-upload-btn:hover {
+            background: #444444;
+            color: #ffffff;
+            transition: all .2s ease;
+            cursor: pointer;
+        }
+
+        .file-upload-btn:active {
+            border: 0;
+            transition: all .2s ease;
+        }
+
+        .file-upload-content {
+            display: none;
+            text-align: center;
+        }
+
+        .file-upload-input {
+            position: absolute;
+            margin: 0;
+            padding: 0;
+            width: 300px;
+            height: 100%;
+            outline: none;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .image-upload-wrap {
+            margin-top: 20px;
+            border: 2px dashed #666666;
+            position: relative;
+        }
+
+        .image-dropping,
+        .image-upload-wrap:hover {
+            border: 2px dashed #444444;
+        }
+
+        .image-title-wrap {
+            padding: 0 15px 15px 15px;
+            color: #222;
+        }
+
+        .drag-text {
+            text-align: center;
+        }
+
+        .drag-text h3 {
+            font-weight: 100;
+            text-transform: uppercase;
+            color: #000000;
+            padding: 60px 0;
+        }
+
+        .file-upload-image {
+            max-height: 200px;
+            max-width: 200px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        .remove-image {
+            margin: 0;
+            color: #fff;
+            background: #cd4535;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            border-bottom: 4px solid #b02818;
+            transition: all .2s ease;
+            outline: none;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        .remove-image:hover {
+            background: #c13b2a;
+            color: #ffffff;
+            transition: all .2s ease;
+            cursor: pointer;
+        }
+
+        .remove-image:active {
+            border: 0;
+            transition: all .2s ease;
+        }
+    </style>
     <!-- Custom styles for this template -->
     <link href="${pageContext.request.contextPath}/css/dashboard.css" rel="stylesheet">
 </head>
 <body ng-app="myApp" ng-controller="myAppcntrl" ng-init="init()">
 <!-- Ust Menu -->
 <jsp:include page="theme/header.jsp" />
+<div class="modal fade bd-example-modal-xl" tabindex="-1" role="dialog" aria-labelledby="myExtraLargeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <iframe ng-src="{{frmsrc}}" style="zoom:0.60" width="99.6%" height="1050" frameborder="0"></iframe>
+
+        </div>
+    </div>
+</div>
 
 <div class="container-fluid">
     <div class="row">
@@ -186,12 +398,12 @@
                     <div class="row">
                         <div  ng-repeat="t in temalar" class="col-sm-4" style="margin-bottom: 40px;">
                             <div class="card" style="width: 18rem;">
-                                <img class="card-img-top" src={{t.screenShout}} alt="Card image cap">
+                                <img class="card-img-top" height="200" src={{t.screenShout}} alt="Card image cap">
                                 <div class="card-body">
                                     <h5 class="card-title">{{t.name}} Tasarımı</h5>
                                     <p class="card-text">{{t.description}}</p>
                                     <button href="#" ng-click="enableTheme(t)" type="button" ng-disabled="{{t.active==true}}" class="btn btn-outline-secondary">Etkinleştir</button>
-                                    <button href="#" type="button" class="btn btn-outline-primary">Önizleme</button>
+                                    <button href="#" ng-click="previewTheme(t)" type="button"  class="btn btn-outline-primary">Önizleme</button>
                                 </div>
                             </div>
                         </div>
@@ -210,7 +422,35 @@
                     </ul>
                     <button href="#" type="button" style="margin-top: 20px;" ng-click="savepagesort()" class="btn btn-outline-secondary">Kaydet</button>
                 </div>
-                <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">Deneme</div>
+                <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">
+                    <div class="card card-body" style="margin-top: 30px;">
+                        <div class="file-upload">
+                            <button class="file-upload-btn" type="button" onclick="$('.file-upload-input').trigger( 'click' )">Resim Seçiniz</button>
+
+                            <div class="image-upload-wrap">
+                                <input class="file-upload-input" type='file' onchange="readURL(this);" accept="image/*" />
+                                <div class="drag-text">
+                                    <h3>İstediğiniz resmi sürükleyip bırakınız</h3>
+                                </div>
+                            </div>
+                            <div class="file-upload-content">
+                                <img class="file-upload-image" src="#" alt="your image" />
+                                <div class="image-title-wrap">
+                                    <button type="button" onclick="removeUpload()" class="remove-image">Kaldır <span class="image-title">Uploaded Image</span></button>
+                                </div>
+                            </div>
+                            <div ng-show="prgrss" class="progress" style="margin-top:20px;">
+                                <div class="progress-bar bg-success" role="progressbar" ng-style="{'width':progressValue}" aria-valuenow="{{progressValue}}" aria-valuemin="0" aria-valuemax="100">{{progressValue}}</div>
+                            </div>
+                            <div style="margin-top: 20px;" ng-show="upcom">
+                                <input type="text" ng-disabled="myinput==false" style="padding:4px;width: 400px;background:#ddd;border:1px solid#ccc;" value={{yuklenenimg}} id="myInput">
+                                <button type="button" class="btn btn-outline-primary" style="float: right;height: 30px;padding: 3px;" onclick="myFunction()">Url yi kopyala</button>
+                            </div>
+                            <button type="button"  style="margin-top: 20px;"  ng-click="uploadimage()" data-toggle="modal" data-target="#imageUpload" class="btn btn-sm btn-outline-secondary">Resim Yükle</button>
+
+                        </div>
+                </div>
+                </div>
                 <div class="tab-pane fade" id="nav-css" role="tabpanel" aria-labelledby="nav-contact-tab">
                     <h5 style="margin-top: 10px;">Kişiselleştirilmiş Css</h5>
                     <div ng-show="alertShow" class="alert alert-{{alert_type}} alert-dismissible fade show" role="alert">

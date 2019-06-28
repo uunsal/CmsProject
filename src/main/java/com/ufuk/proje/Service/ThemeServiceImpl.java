@@ -57,4 +57,14 @@ public class ThemeServiceImpl implements ThemeService {
     public Theme getDefaultTheme(String url) {
         return themeRepository.findByUrl(url);
     }
+
+    @Override
+    public void save(Theme theme) {
+        themeRepository.save(theme);
+    }
+
+    @Override
+    public Optional<Theme> findById(int id) {
+        return themeRepository.findById(id);
+    }
 }

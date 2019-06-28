@@ -19,4 +19,5 @@ public interface UserService {
     public initalize_model getSettings();
     public initalize_model checkContext(String contextPath);
     public List<User> findAll();
+    public User findUserByUsername(String username);
 }

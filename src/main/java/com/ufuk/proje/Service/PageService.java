@@ -25,8 +25,9 @@ public interface PageService {
     public Page updatePageAdvanced(Page page);
     public List<Page> getNotDraftPage(String username);
     public void updateImage(image ımage);
-    public List<image> findAllImage();
+    public List<image> findAllImage(String username);
     public void savePage(Page page);
     public Page findByPageTypeAndPrinciple(String pagetype,String username);
     public Page findByUrlAndPrinciples(String url,String principles);
+    public void updateCv(Page page,String principal);
 }

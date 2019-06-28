@@ -14,14 +14,14 @@ public class ProjeApplication {
     private static HashMap hsmp = new HashMap();
     private static ConfigurableApplicationContext context;
     public static void main(String[] args) {
-        if(readInıtalize()){
-            String url=String.valueOf(hsmp.get("url"));
-            if(url.charAt(0)!='/') url="/"+url;
-            //System.setProperty("server.servlet.context-path", url);
-        }
-        else{
-            System.setProperty("server.servlet.context-path", "/setup");
-        }
+//        if(readInıtalize()){
+//            String url=String.valueOf(hsmp.get("url"));
+//            if(url.charAt(0)!='/') url="/"+url;
+//            //System.setProperty("server.servlet.context-path", url);
+//        }
+//        else{
+//            System.setProperty("server.servlet.context-path", "/setup");
+//        }
         context = SpringApplication.run(ProjeApplication.class, args);
         System.out.println("Ana uygulama deploy oldu");
 

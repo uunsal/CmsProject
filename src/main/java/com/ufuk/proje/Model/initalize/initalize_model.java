@@ -19,8 +19,14 @@ public class initalize_model {
     private String profilePhoto;
     @Column(length = 1000000)
     private String customCss;
+
+    @Column(name = "bcount",nullable = true,columnDefinition = "integer default 5")
+    private int blogcount;
+
     @OneToOne
     private Theme theme;
+
+    private String cvId;
 
     public String getProfilePhoto() {
         return profilePhoto;
@@ -76,6 +82,22 @@ public class initalize_model {
 
     public void setTheme(Theme theme) {
         this.theme = theme;
+    }
+
+    public String getCvId() {
+        return cvId;
+    }
+
+    public void setCvId(String cvId) {
+        this.cvId = cvId;
+    }
+
+    public int getBlogcount() {
+        return blogcount;
+    }
+
+    public void setBlogcount(int blogcount) {
+        this.blogcount = blogcount;
     }
 
     @Override

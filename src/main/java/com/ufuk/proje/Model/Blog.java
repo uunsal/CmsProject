@@ -11,6 +11,16 @@ public class Blog {
     @Column(length = 10000000)
     private String content;
 
+    private String username;
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
     public int getId() {
         return Id;
     }

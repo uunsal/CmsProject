@@ -10,7 +10,7 @@ public class image {
     @Column(length = 10000000)
     private String imageBase64;
     private String loadDate;
-
+    private String username;
     public int getId() {
         return Id;
     }
@@ -33,5 +33,13 @@ public class image {
 
     public void setLoadDate(String loadDate) {
         this.loadDate = loadDate;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 }

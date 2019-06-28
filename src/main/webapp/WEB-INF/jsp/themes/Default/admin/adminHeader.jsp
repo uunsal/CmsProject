@@ -8,6 +8,8 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
          pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<script src="https://cdn.ckeditor.com/4.11.3/full/ckeditor.js"></script>
+<!-- Angular Library -->
 <style>
     /*
  * Navbar
@@ -45,6 +47,57 @@
         background: #222222;
     }
 </style>
+<script>
+    var app = angular.module('myApp', []);
+    app.controller('myAppcntrl', function ($scope, $http, $log,$location,$timeout,$window) {
+
+        $scope.page_select = function (data) {
+            $http({
+                method: 'POST',
+                url: '/admin/dashboard/getPage',
+                data: {id:data}
+            }).then(function successCallback(response) {
+                $scope.page_selected_value=response.data;
+                console.log($scope.page_selected_value.draft);
+                $scope.global_secilen_page=$scope.page_selected_value.id;
+                CKEDITOR.instances.editor1.setData($scope.page_selected_value.contents+"\n");
+                $scope.goster_url=$scope.page_selected_value.url;
+
+            }, function errorCallback(response) {
+                // called asynchronously if an error occurs
+                // or server returns response with an error status.
+            })
+        }
+
+        $scope.formu_gonder = function (data) {
+            $scope.page_data = CKEDITOR.instances.editor1.getData();
+            console.log($scope.page_data)
+            $http({
+                method: 'POST',
+                url: '/admin/dashboard/updatePage',
+                data: {contents:$scope.page_data,id:data}
+            }).then(function successCallback(response) {
+                //$scope.person=response.data;
+                $scope.alertFunct(true,"success","Sayfa kaydedildi!");
+
+            }, function errorCallback(response) {
+                // called asynchronously if an error occurs
+                // or server returns response with an error status.
+            })
+            console.log("deneme"+$scope.page_data);
+            //alert("deneme");
+        }
+        $scope.alertFunct = function(gelen,type,message){
+            $scope.alertContent=message;
+            $scope.alert_type=type;
+            $scope.alertShow=gelen;
+            $timeout(function() {
+                $scope.alertShow=false;
+                $window.location.reload();
+            }, 3600);
+        }
+    })
+</script>
 <c:if test="${auth==true}">
     ${auth}
 <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow" style="">
@@ -55,8 +108,8 @@
 
     <ul class="navbar-nav px-3">
         <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
-            <button type="button" class="btn btn-secondary bg-dark">Admin Sayfası</button>
-            <button type="button" class="btn btn-secondary bg-dark" style="margin-right: 10px">Sayfayı Düzenle</button>
+            <a type="" href="/admin" class="btn btn-secondary bg-dark">Admin Sayfası</a>
+            <button type="button" ng-click="page_edit()" class="btn btn-secondary bg-dark"  data-toggle="modal" data-target=".bd-example-modal-xl" style="margin-right: 10px">Sayfayı Düzenle</button>
             <form action="${pageContext.request.contextPath}/admin/logout" method="post">
                 <input class="btn btn-success" type="submit" value="Çıkış"> <input type="hidden"
                 name="${_csrf.parameterName}" value="${_csrf.token}">
@@ -71,4 +124,36 @@
     </ul>
 </nav>
 <div style="height: 20px;"></div>
+    <div  ng-app="myApp" ng-controller="myAppcntrl" ng-init="page_select('${page.id}')" class="modal fade bd-example-modal-xl" tabindex="-1" role="dialog" aria-labelledby="myExtraLargeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content" style="padding: 10px;">
+                    <div class="col-sm-12">
+                        <div ng-show="alertShow" class="alert alert-{{alert_type}} alert-dismissible fade show" role="alert">
+                            {{alertContent}}
+
+                        </div>
+                        <center><span style="font-weight: bold; border-bottom: 2px solid #a00;padding:5px;" class="text-capitalize">{{page_selected_value.title}}</span></center>
+                        </br>
+                        <form  method="post" ng-submit="formu_gonder('${page.id}')" data-sample-short>
+                            <textarea name="editor1" id="editor1" rows="10" cols="80">
+                                    <%--This is my textarea to be replaced with CKEditor.--%>
+                            </textarea>
+                            <script>
+                                // Replace the <textarea id="editor1"> with a CKEditor
+                                // instance, using default configuration.
+                                CKEDITOR.replace('editor1', {
+                                    height: 400,
+                                });
+
+                            </script>
+                            <p><input class="btn btn-primary" style="margin-top: 15px;margin-right:17px;" type="submit" value="Kaydet">
+
+
+                        </form>
+
+                    </div>
+            </div>
+        </div>
+    </div>
+
 </c:if>

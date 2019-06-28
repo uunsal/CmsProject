@@ -7,6 +7,7 @@ import com.ufuk.proje.Service.BlogService;
 import com.ufuk.proje.Service.PageService;
 import com.ufuk.proje.Service.ThemeService;
 import com.ufuk.proje.Service.UserService;
+import com.ufuk.proje.Util.CvUtil;
 import org.apache.catalina.core.ApplicationContext;
 import org.apache.commons.io.FileUtils;
 import org.apache.coyote.Response;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
@@ -63,14 +65,18 @@ public class AdminDashboardController {
         page.setContents("");
 
         Page page_control = pageService.findByUrlAndPrinciples(page.getUrl(),principal.getName()); // sayfa yoksa sayfayı oluşturur.
-        System.out.println(page_control);
-        if(page.getPageType()==null) page.setPageType("sample"); // gelişmiş seçenekte sayfa türü belirtilmemişse sample dır
-        if(!page.getPageType().equals("sample")){
-            List<Page> page_type_control = pageService.findByPageType(page.getPageType());
-            if(page_type_control.size()>0){ // var olan sayfa türlerinden zaten varsa kullanıcıya hata döndürmesi için yazıldı.
-                return ResponseEntity.ok(null);
+        System.out.println(page_control+ " "+principal.getName());
+
+            if (page.getPageType() == null)
+                page.setPageType("sample");// gelişmiş seçenekte sayfa türü belirtilmemişse sample dır
+
+            if (!page.getPageType().equals("sample")) {
+                Page page_type_control = pageService.findByPageTypeAndPrinciple(page.getPageType(),principal.getName());
+                if (page_type_control!= null) { // var olan sayfa türlerinden zaten varsa kullanıcıya hata döndürmesi için yazıldı.
+                    return ResponseEntity.ok(null);
+                }
             }
-        }
+
         if(page_control==null){
             return ResponseEntity.ok(pageService.createPage(page,principal.getName()));
         }
@@ -110,9 +116,15 @@ public class AdminDashboardController {
     }
 
     @PostMapping("getContextPath")
-    public ResponseEntity<Context> getContextPath(HttpServletRequest request){ // context path url bilgisini döndürür
+    public ResponseEntity<Context> getContextPath(HttpServletRequest request,Principal principal){ // context path url bilgisini döndürür
         Context context = new Context();
-        context.setContextPath(request.getContextPath());
+//        context.setContextPath(request.getContextPath());
+        initalize_model itm = ınıtalizeModelRepository.findByUserUsername(principal.getName());
+        String url="";
+        for (char s: itm.getUrl().toCharArray()){
+            if(s!='/') url+=s;
+        }
+        context.setContextPath(url);
         return ResponseEntity.ok(context);
     }
 
@@ -144,16 +156,16 @@ public class AdminDashboardController {
     }
 
     @PostMapping("uploadPhoto")
-    public void uploadPhoto(@RequestBody image ımage){
+    public void uploadPhoto(@RequestBody image ımage,Principal principal){
         Date date = new Date();
         ımage.setLoadDate(date.toString());
+        ımage.setUsername(principal.getName());
         pageService.updateImage(ımage);
-
     }
 
     @GetMapping("findAllImage")
-    public ResponseEntity<List<image>> findAllImage(){
-        return ResponseEntity.ok(pageService.findAllImage());
+    public ResponseEntity<List<image>> findAllImage(Principal principal){
+        return ResponseEntity.ok(pageService.findAllImage(principal.getName()));
     }
 
     @PostMapping("changeTheme")
@@ -191,7 +203,8 @@ public class AdminDashboardController {
     }
 
     @PostMapping("createBlog")
-    public ResponseEntity<Boolean> createBlog(@RequestBody Blog blog){
+    public ResponseEntity<Boolean> createBlog(@RequestBody Blog blog,Principal principal){
+        blog.setUsername(principal.getName());
         blogService.createBlog(blog);
         return ResponseEntity.ok(Boolean.TRUE);
     }
@@ -203,6 +216,30 @@ public class AdminDashboardController {
 
     @PostMapping("superCreate")
     public ResponseEntity<User> superCreate(@RequestBody initalize_model initalize_model){
+        List<Theme> themecheck= themeService.findAllTheme();
+        initalize_model itmcheck = ınıtalizeModelRepository.findByUrl("/"+initalize_model.getUrl());
+        if(itmcheck!=null){// url kontrolü yapıldı
+            User user = new User();
+            user.setUsername("null");
+            return ResponseEntity.ok(user);
+        }
+        if(themecheck.size()==0){ // database de tema yoksa temaları oluşturur
+            Theme t1 = new Theme();
+            t1.setName("Ktün Kırmızı");
+            t1.setDescription("Konya Teknik Üniversitesine Benzeyen Kırmızı Ağırlıkta Tema");
+            t1.setUrl("Ktun");
+            Theme t2 =  new Theme();
+            t2.setName("Ktün Klasik");
+            t2.setUrl("Default");
+            t2.setDescription("Web sayfanızı ilk oluşturduğunuzha hazır olarak gelen koyu ağırlıkta tema");
+            Theme t3 = new Theme();
+            t3.setName("Ktün Modern");
+            t3.setUrl("Theme1");
+            t3.setDescription("Açık renkleri barındıran web tasarımı.");
+            themeService.save(t1);
+            themeService.save(t2);
+            themeService.save(t3);
+        }
         initalize_model itm = new initalize_model();
         if(initalize_model.getUrl().charAt(0)!='/') {
             String url = initalize_model.getUrl();
@@ -221,6 +258,10 @@ public class AdminDashboardController {
         User u = new User();
         String username = initalize_model.getUser().getFirstName()
                 .toLowerCase().charAt(0)+initalize_model.getUser().getLastName().toLowerCase();
+        Random random = new Random();
+        for (int i=0;i<3;i++){
+            username = username+random.nextInt(10);
+        }
         u.setUsername(username);
         u.setEnabled(true);
         u.setUnvan(initalize_model.getUser().getUnvan());
@@ -244,6 +285,82 @@ public class AdminDashboardController {
         userService.saveAuth(authorities);
         u.setPassword(pass);
         return ResponseEntity.ok(u);
+
+    }
+
+    @PostMapping("updateCv")
+    public ResponseEntity<String> updateCv(@RequestBody initalize_model initalize_model,Principal principal){
+        initalize_model itm = ınıtalizeModelRepository.findByUserUsername(principal.getName());
+        itm.setCvId(initalize_model.getCvId());
+        ınıtalizeModelRepository.save(itm);
+        Page p = new Page();
+        p.setContents("");
+        p.setDraft(false);
+        p.setTitle("cv");
+        p.setUrl("/cv");
+        p.setPageType("cv");
+        pageService.updateCv(p,principal.getName());
+        System.out.println(String.valueOf(itm.getProfilePhoto()).equals(null));
+        if(itm.getProfilePhoto()==""||itm.getProfilePhoto()==null){
+            CvUtil cv = new CvUtil();
+            HashMap hashMap = cv.getOtherInfo(itm.getCvId(),"http://ktun.edu.tr/PersonelBilgi/Index/"+itm.getCvId());
+            itm.setProfilePhoto(hashMap.get("img")+itm.getCvId());
+            ınıtalizeModelRepository.save(itm);
+        }
+        else{
+            CvUtil cv = new CvUtil();
+            HashMap hashMap = cv.getOtherInfo(itm.getCvId(),"http://ktun.edu.tr/PersonelBilgi/Index/"+itm.getCvId());
+            itm.setProfilePhoto(hashMap.get("img")+itm.getCvId());
+            ınıtalizeModelRepository.save(itm);
+        }
+        return ResponseEntity.ok("");
+    }
+    @GetMapping("settingsinit")
+    public ResponseEntity<initalize_model> userInfoSettings(Principal principal){
+        return ResponseEntity.ok(ınıtalizeModelRepository.findByUserUsername(principal.getName()));
+    }
+    @PostMapping("updatepass")
+    public void changePassword(@RequestBody User user,Principal principal){
+        User userDb = userService.findUserByUsername(principal.getName());
+        userDb.setPassword("{bcrypt}"+new BCryptPasswordEncoder().encode(user.getPassword()));
+        userService.saveUser(userDb);
+    }
+    @PostMapping("updatenamelast")
+    public void changeName(@RequestBody User user,Principal principal){
+        User userDb = userService.findUserByUsername(principal.getName());
+        userDb.setFirsNtame(user.getFirstName());
+        userDb.setLastName(user.getLastName());
+        userService.saveUser(userDb);
+    }
+    @PostMapping("updateemail")
+    public void changeEmail(@RequestBody User user,Principal principal){
+        User userDb = userService.findUserByUsername(principal.getName());
+        userDb.setEmail(user.getEmail());
+        userService.saveUser(userDb);
+    }
+    @PostMapping("updateProfilePhoto")
+    public void updateProfilePhotos(@RequestBody initalize_model initalize_model,Principal principal){
+        initalize_model itm = ınıtalizeModelRepository.findByUserUsername(principal.getName());
+        itm.setProfilePhoto(initalize_model.getProfilePhoto());
+        ınıtalizeModelRepository.save(itm);
+    }
+
+    @PostMapping("previewTheme")
+    public ResponseEntity<Theme> previewTheme(@RequestBody Theme theme){
+        Optional <Theme> t = themeService.findById(theme.getId());
+        if(t.isPresent()){
+            System.out.println(t.get().getUrl());
+            return ResponseEntity.ok(t.get()) ;
+        }
+        return null;
+    }
+
+    @PostMapping("updateBlogCount")
+    public void updateBlogCount(@RequestBody initalize_model itm1,Principal principal){
+        System.out.println("geldi"+itm1.getBlogcount());
+       initalize_model itm = ınıtalizeModelRepository.findByUserUsername(principal.getName());
+       itm.setBlogcount(itm1.getBlogcount());
+       ınıtalizeModelRepository.save(itm);
 
     }
 

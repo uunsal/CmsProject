@@ -15,6 +15,7 @@
 
     <!-- Bootstrap core CSS -->
     <link href="${pageContext.request.contextPath}/css/bootstrap.min.css"  rel="stylesheet" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.7/angular.min.js"></script>
 
 
     <style>
@@ -39,8 +40,35 @@
     </style>
     <!-- Custom styles for this template -->
     <link href="${pageContext.request.contextPath}/css/dashboard.css" rel="stylesheet">
+    <script>
+        var app = angular.module('myApp', []);
+        app.controller('myAppcntrl', function ($scope, $http, $log,$location,$timeout,$window) {
+            $scope.formu_gndr = function () {
+                $http({
+                    method: 'POST',
+                    url: 'dashboard/updateCv',
+                    data: {cvId:$scope.idfor}
+                }).then(function successCallback(response) {
+                    $scope.alertFunct(true,"success","Cv Bilgileri Güncellendi..");
+                }, function errorCallback(response) {
+                    // called asynchronously if an error occurs
+                    // or server returns response with an error status.
+                    console.log(response.data);
+
+                })
+            }
+            $scope.alertFunct = function(gelen,type,message){
+                $scope.alertContent=message;
+                $scope.alert_type=type;
+                $scope.alertShow=gelen;
+                $timeout(function() {
+                    $scope.alertShow=false;
+                }, 3600);
+            }
+        });
+    </script>
 </head>
-<body>
+<body ng-app="myApp" ng-controller="myAppcntrl" ng-init="init()">
 <!-- Ust Menu -->
 <jsp:include page="theme/header.jsp" />
 
@@ -51,43 +79,20 @@
 
         <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                <h1 class="h2">Ana Sayfa</h1>
-                <div class="btn-toolbar mb-2 mb-md-0">
-                    <div class="btn-group mr-2">
-                        <button type="button" class="btn btn-sm btn-outline-secondary">menu1</button>
-                        <button type="button" class="btn btn-sm btn-outline-secondary">menu2</button>
-                    </div>
-                    <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle">
-                        <span data-feather="calendar"></span>
-                        menu3
-                    </button>
-                </div>
+                <h1 class="h2">Cv İşlemleri</h1>
             </div>
-            <div class="d-flex align-items-center p-3 my-3 text-white-50 bg-purple rounded shadow-sm">
-                <img class="mr-3 bg-light" src="http://ktun.edu.tr/Content/images/logo/logo3.png" alt="" width="158" height="48">
-                <div class="lh-100">
-                    <h6 class="mb-0 text-white lh-100">Hoşgeldiniz ${user}</h6>
-                    <small>Konya Teknik Üniversitesi Web Sayfaları Yönetim Sistemi</small>
-                </div>
+            <div ng-show="alertShow" class="alert alert-{{alert_type}} alert-dismissible fade show" role="alert">
+                {{alertContent}}
+
             </div>
-            <div class="container" style="padding:10px;">
-                <div class="row">
-                    <div class="col-sm" style="background: #efefef;height: 200px; text-align: center;font-weight:bold;padding-top: 20px;border-bottom: 3px solid #a00;">Sayfalarım<br><div style="color:#2c6ed5;margin-top:20px;font-weight: normal;font-weight: bold;font-size: xx-large;border: 3px solid #ffffff;">${pinfo}</div><br>
-                        <a class="nav-link" href="${pageContext.request.contextPath}/admin/pages">
-                            <span data-feather="file"></span>
-                            Yeni Sayfa Ekle
-                        </a>
-                    </div>
-                    <div class="col-sm" style="background: #ffffff;height: 200px; text-align: center;font-weight:bold;padding-top: 20px;border-bottom: 3px solid #ddd;">Geçerli Tasarım<br>
-                        <div style="color:#2c6ed5;margin-top:20px;font-weight: normal;font-weight: bold;font-size: x-large;border: 3px solid #efefef;height: 53px;padding-top: 4px;">${tinfo}</div><br>
-                        <a class="nav-link" href="${pageContext.request.contextPath}/admin/design">
-                            <span data-feather="eye"></span>
-                            Tasarım İşlemleri
-                        </a>
-                    </div>
-                    <div class="col-sm" style="background: #efefef;height: 200px; text-align: center;font-weight:bold;padding-top: 20px;border-bottom: 3px solid #a00;">Yazılarım</div>
+            <form ng-submit="formu_gndr()">
+                <div class="form-group">
+                    <label for="idınput">Id Bilgisi : </label>
+                    <input type="username" ng-model="idfor" class="form-control" id="idınput"  placeholder="Id bilgisini giriniz : ">
+                    <small id="emailHelp" class="form-text text-muted">Konya teknik üniversitesi personel bilgileri sayfasındaki ıd bilginizi giriniz.</small>
                 </div>
-            </div>
+                <button type="submit" class="btn btn-primary">Kaydet</button>
+            </form>
         </main>
     </div>
 </div>

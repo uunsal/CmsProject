@@ -3,6 +3,7 @@ package com.ufuk.proje.Service;
 import com.ufuk.proje.Model.Theme;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ThemeService {
     List<Theme> findAllTheme();
@@ -12,4 +13,8 @@ public interface ThemeService {
     void addCustomCss(String customCss);
 
     Theme getDefaultTheme(String url);
+
+    void save(Theme theme);
+
+    Optional<Theme> findById(int id);
 }

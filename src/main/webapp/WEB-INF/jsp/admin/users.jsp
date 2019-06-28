@@ -50,6 +50,10 @@
                     url: 'dashboard/superCreate',
                     data:$scope.datas
                 }).then(function successCallback(response) {
+                    if(response.data.username=="null"){
+                        $scope.alertFunct(true,"danger","Eklemeye çalıştığınız url sistemde zaten var lütfen başka url deneyiniz!..");
+                        return;
+                    }
                     $scope.alertFunct(true,"success","Kullanıcı oluşturuldu , Kullanıcı Adı : "+response.data.username + " Şifresi :" + response.data.password + " kullanıcı şifresini daha sonra ayarlar kısmından kendine özel olarak belirleyebilir.");
                     $scope.init();
                 }, function errorCallback(response) {
@@ -252,7 +256,7 @@
                             </form>
                         </div>
                         <c:set var = "sayac" scope = "session" value = "0"/>
-                        <div class="media text-muted pt-3" ng-repeat="u in users | filter:searchText">
+                        <div class="media text-muted pt-3"  ng-repeat="u in users | filter:searchText">
                             <c:if test="${sayac%2==0}">
                                 <c:set var = "sayac" scope = "session" value = "1"/>
                                 <svg class="bd-placeholder-img mr-2 rounded" width="32" height="32"

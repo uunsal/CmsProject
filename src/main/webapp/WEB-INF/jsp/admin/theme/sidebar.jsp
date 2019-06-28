@@ -17,6 +17,12 @@
                 </a>
             </li>
             <li class="nav-item">
+                <a class="nav-link" href="${pageContext.request.contextPath}/admin/cv">
+                    <span data-feather="user"></span>
+                    Cv İşlemleri
+                </a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link" href="${pageContext.request.contextPath}/admin/blog">
                     <span data-feather="edit"></span>
                     Yazılarım
@@ -41,7 +47,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">
+                <a class="nav-link" href="${pageContext.request.contextPath}/admin/settings">
                     <span data-feather="settings"></span>
                     Ayarlar
                 </a>
